@@ -1,53 +1,29 @@
-package main
+package decode
 
 import (
-	"fmt"
-	"github.com/jhillyerd/enmime"
 	"os"
+
+	"github.com/jhillyerd/enmime"
 )
 
 // https://godoc.org/github.com/jhillyerd/enmime
 // https://stackoverflow.com/questions/35038864/golang-global-variable-access
 
-func main() {
+// Decode recieves a raw msg and returns the body text
+func Decode(msg string) (body string, err error) {
 	// Open a sample message file.
-	r, err := os.Open("./test.1.raw")
+	r, err := os.Open(msg)
 	if err != nil {
-		fmt.Print(err)
-		return
+		return "", err
 	}
 
 	// Parse message body with enmime.
 	env, err := enmime.ReadEnvelope(r)
 	if err != nil {
-		fmt.Print(err)
-		return
+		return "", err
 	}
 
-	// Headers can be retrieved via Envelope.GetHeader(name).
-	fmt.Printf("From: %v\n", env.GetHeader("From"))
+	// fmt.Println(reflect.TypeOf(env.HTML)) = string
 
-	// Address-type headers can be parsed into a list of decoded mail.Address structs.
-	alist, _ := env.AddressList("To")
-	for _, addr := range alist {
-		fmt.Printf("To: %s <%s>\n", addr.Name, addr.Address)
-	}
-
-	// enmime can decode quoted-printable headers.
-	fmt.Printf("Subject: %v\n", env.GetHeader("Subject"))
-
-	// The plain text body is available as mime.Text.
-	fmt.Printf("Text Body: %v chars\n", len(env.Text))
-
-	// The HTML body is stored in mime.HTML.
-	fmt.Printf("HTML Body: %v chars\n", len(env.HTML))
-
-	// mime.Inlines is a slice of inlined attacments.
-	fmt.Printf("Inlines: %v\n", len(env.Inlines))
-
-	// mime.Attachments contains the non-inline attachments.
-	fmt.Printf("Attachments: %v\n", len(env.Attachments))
-
-	fmt.Println(env.HTML)
-
+	return env.HTML, nil
 }
