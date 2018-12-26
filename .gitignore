@@ -35,4 +35,7 @@
 /vendor/
 /Godeps/
 
-# End of https://www.gitignore.io/api/go,cloud9
+# End of https://www.gitignore.io/api/go,cloud9,VisualStudioCode
+
+# Project Specific
+casesTest/*
