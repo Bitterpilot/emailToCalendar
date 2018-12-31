@@ -12,7 +12,7 @@ type tableData struct {
 }
 
 type shift struct {
-	summary        string // will be the procesed orgLevel (remove everything between \ inclusive)
+	summary        string // will be the procesed orgLevel (remove everything between \ inclusive) ***REMOVED***
 	location       string // Derived from orgLevel (if item before \ = AAAA then 303 if item before \ = BBBB)
 	eventDateStart string // date + startWork
 	eventDateEnd   string // date + endWork
