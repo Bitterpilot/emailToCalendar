@@ -98,13 +98,29 @@ func main() {
 	if err != nil {
 		log.Fatalf("%v", err)
 	}
-	fmt.Printf("Mime Type: %s\n", r.Payload.Parts[0].MimeType)
-	fmt.Printf("Body Size: %d\n", r.Payload.Parts[0].Body.Size)
-	emailBytes, err := base64.URLEncoding.DecodeString(r.Payload.Parts[0].Body.Data)
+
+	// Check Mime types
+	// start by setting a high part number so if a part of the desiered mime type is not found
+	// we can fail gracefully.
+	// parts is an array so a 0 default part num would result in selectig the first element in the array
+	// a milti-part email is unlikly to have more than 9000 parts (a foolish assumption?)
+	var partNum = 9999
+	for i := 0; i < len(r.Payload.Parts); i++ {
+		if r.Payload.Parts[i].MimeType == "text/html" {
+			partNum = i
+		}
+	}
+	if partNum == 9999 {
+		log.Fatalf("Mime Type not found")
+	}
+
+	// Decode and print
+	data := r.Payload.Parts[partNum].Body.Data
+	dataType := r.Payload.Parts[partNum].MimeType
+	emailBytes, err := base64.URLEncoding.DecodeString(data)
 	if err != nil {
 		log.Fatalf("%v", err)
 	}
-	// fmt.Printf("%s", emailBytes)
-	fmt.Printf("Body:\n%s", emailBytes)
+	fmt.Printf("%s\n%s", dataType, emailBytes)
 
 }
