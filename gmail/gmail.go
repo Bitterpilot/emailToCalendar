@@ -70,7 +70,7 @@ func saveToken(path string, token *oauth2.Token) {
 	json.NewEncoder(f).Encode(token)
 }
 
-func main() {
+func newService() *gmail.Service {
 	b, err := ioutil.ReadFile("gmail/credentials.json")
 	if err != nil {
 		log.Fatalf("Unable to read client secret file: %v", err)
@@ -87,6 +87,11 @@ func main() {
 	if err != nil {
 		log.Fatalf("Unable to retrieve Gmail client: %v", err)
 	}
+	return srv
+}
+
+func main() {
+	srv := newService()
 	user := "me"
 	// r, err := srv.Users.Messages.Get(user, "***REMOVED***").Format("raw").Do()
 	r, err := srv.Users.Messages.Get(user, "***REMOVED***").Format("full").Do()
