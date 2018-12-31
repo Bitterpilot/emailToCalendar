@@ -93,8 +93,8 @@ func newService() *gmail.Service {
 func main() {
 	srv := newService()
 	user := "me"
-	// r, err := srv.Users.Messages.Get(user, "***REMOVED***").Format("raw").Do()
-	r, err := srv.Users.Messages.Get(user, "***REMOVED***").Format("full").Do()
+	msgID := "***REMOVED***"
+	r, err := srv.Users.Messages.Get(user, msgID).Format("full").Do()
 	if err != nil {
 		log.Fatalf("%v", err)
 	}
