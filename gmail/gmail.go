@@ -88,26 +88,18 @@ func main() {
 		log.Fatalf("Unable to retrieve Gmail client: %v", err)
 	}
 	user := "me"
-	r, err := srv.Users.Messages.Get(user, "***REMOVED***").Format("raw").Do()
+	// r, err := srv.Users.Messages.Get(user, "***REMOVED***").Format("raw").Do()
+	r, err := srv.Users.Messages.Get(user, "***REMOVED***").Format("full").Do()
 	if err != nil {
 		log.Fatalf("%v", err)
 	}
-	// fmt.Println(r)
-	// s := "="
-	// r2 := []rune(s)
-	// fmt.Println("-------------------------------")
-	// fmt.Printf("%v\n", r2) // ***REMOVED***
-	// fmt.Printf("%U\n", r2) // ***REMOVED***
-	// fmt.Println(r.Raw)
-	// rawBytes := []byte(r.Raw)
-	// emailBytes := []byte("")
-	emailBytes, err := base64.URLEncoding.DecodeString(r.Raw)
+	fmt.Printf("Mime Type: %s\n", r.Payload.Parts[0].MimeType)
+	fmt.Printf("Body Size: %d\n", r.Payload.Parts[0].Body.Size)
+	emailBytes, err := base64.URLEncoding.DecodeString(r.Payload.Parts[0].Body.Data)
 	if err != nil {
 		log.Fatalf("%v", err)
 	}
-	// n := len(emailBytes) + 1
-	// s := string(emailBytes[:n])
-	// fmt.Println(s)
+	// fmt.Printf("%s", emailBytes)
+	fmt.Printf("Body:\n%s", emailBytes)
 
-	fmt.Printf("%s", emailBytes)
 }
