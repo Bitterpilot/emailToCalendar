@@ -39,3 +39,5 @@
 
 # Project Specific
 casesTest/*
+gmail/credentials.json
+gmail/token.json
