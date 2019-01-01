@@ -2,10 +2,11 @@ package main
 
 import (
 	"fmt"
-	"golang.org/x/net/html"
 	"os"
 	"regexp"
 	"strings"
+
+	"golang.org/x/net/html"
 
 	"github.com/jhillyerd/enmime"
 )
@@ -82,26 +83,24 @@ func processTable(eml string) []string {
 	// 8 - 15
 	// 16 - 2
 	table2 := []string{}
-	for key, val := range table {
+	for key := range table {
 		modlo := key % 8
 		if modlo == 0 {
-			fmt.Println(key, val)
-			table2 = table[key:(key + 9)]
+			table2 = table[key:(key + 8)]
 		}
 	}
-	fmt.Println(table2)
 	return table2
 }
 
 func main() {
 	cases := []string{"casesTest/01.eml", "casesTest/02.eml", "casesTest/03.eml", "casesTest/04.eml", "casesTest/05.eml", "casesTest/06.eml", "casesTest/07.eml", "casesTest/08.eml", "casesTest/09.eml", "casesTest/10.eml", "casesTest/11.eml", "casesTest/12.eml", "casesTest/13.eml"}
-	_, table := readEmail(cases[0])
+	// year, _ := readEmail(cases[0])
 	// for _, v := range table {
-	fmt.Println(table)
+	// fmt.Printf("%s     %t %s\n", caseyear)
 	// }
 
-	// for k, v := range cases {
-	// year, table := readEmail(v)
-	// 	fmt.Printf("---\n%d\n%s\n%s\n", k, year, table)
-	// }
+	for _, v := range cases {
+		year, _ := readEmail(v)
+		fmt.Printf(`{"%s", []string{"%s", "%s"}},`, v, year[0], year[1])
+	}
 }
