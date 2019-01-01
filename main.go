@@ -10,10 +10,10 @@ import (
 	"github.com/jhillyerd/enmime"
 )
 
-func readEmail(v string) (year []string, table []string) {
+func readEmail(v string) (year, table []string) {
 	eml, _ := decode(v)
 	year = readYear(eml)
-	table = readTag(eml, "td", "table")
+	table = processTable(eml)
 
 	return year, table
 }
