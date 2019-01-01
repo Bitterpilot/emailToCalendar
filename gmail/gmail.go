@@ -114,6 +114,18 @@ func main() {
 		log.Fatalf("Mime Type not found")
 	}
 
+	// Confirm Encoding type is base64 before proceding
+	partHeaders := r.Payload.Parts[partNum].Headers
+	for key := range partHeaders {
+		if partHeaders[key].Name == "Content-Transfer-Encoding" {
+			if partHeaders[key].Value != "base64" {
+				// FIXME: Make sure a fatal is approraiate
+				// 		  fatal will exit to OS
+				// guide https://stackoverflow.com/a/33890104
+				log.Fatalf("Unexpected Content-Transfer-Encoding type: %v", partHeaders[key].Value)
+			}
+		}
+	}
 	// Decode and print
 	data := r.Payload.Parts[partNum].Body.Data
 	dataType := r.Payload.Parts[partNum].MimeType
