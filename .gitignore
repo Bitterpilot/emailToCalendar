@@ -39,6 +39,6 @@
 
 # Project Specific
 casesTest/*
-gmail/credentials.json
-gmail/token.json
+*/credentials.json
+*/token.json
 exampleFullOutput.json
