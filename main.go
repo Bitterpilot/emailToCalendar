@@ -43,7 +43,7 @@ func readTag(body, readTag, endTag string) (table []string) {
 	z := html.NewTokenizer(strings.NewReader(body))
 	content := []string{}
 
-	// While have not hit the </table> tag
+	// While have not hit the </endTag> tag
 	for z.Token().Data != endTag {
 		tt := z.Next()
 		if tt == html.StartTagToken {
@@ -76,10 +76,32 @@ func readYear(eml string) []string {
 	return years
 }
 
+func processTable(eml string) []string {
+	table := readTag(eml, "td", "table")
+	// days := []string{"Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"}
+	// 8 - 15
+	// 16 - 2
+	table2 := []string{}
+	for key, val := range table {
+		modlo := key % 8
+		if modlo == 0 {
+			fmt.Println(key, val)
+			table2 = table[key:(key + 9)]
+		}
+	}
+	fmt.Println(table2)
+	return table2
+}
+
 func main() {
 	cases := []string{"casesTest/01.eml", "casesTest/02.eml", "casesTest/03.eml", "casesTest/04.eml", "casesTest/05.eml", "casesTest/06.eml", "casesTest/07.eml", "casesTest/08.eml", "casesTest/09.eml", "casesTest/10.eml", "casesTest/11.eml", "casesTest/12.eml", "casesTest/13.eml"}
-	for k, v := range cases {
-		year, table := readEmail(v)
-		fmt.Printf("---\n%d\n%s\n%s\n", k, year, table)
-	}
+	_, table := readEmail(cases[0])
+	// for _, v := range table {
+	fmt.Println(table)
+	// }
+
+	// for k, v := range cases {
+	// year, table := readEmail(v)
+	// 	fmt.Printf("---\n%d\n%s\n%s\n", k, year, table)
+	// }
 }
