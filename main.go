@@ -109,10 +109,6 @@ func main() {
 	fmt.Printf("%s", body)
 	// TODO: stream html table in to db
 	// TODO: read db where processed = false and insert into cal
-	// TODO: FIXME: msgID with an extra column(comments) "***REMOVED***"
-	// struct or map for each table row all kept in an array
-	// []map{tablerow, tablerow.....}
-	// tablerow is described in shift/shift.go
 
 	// Start of calandar stuff
 	/*
