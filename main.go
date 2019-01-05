@@ -43,20 +43,19 @@ func decode(msg string) (body string, err error) {
 // insome cases you will want this process to end at a differnt endTag
 // eg read all table rows <td> until you reach </table>
 func readTag(body, readTag, endTag string) (table []string) {
-	z := html.NewTokenizer(strings.NewReader(body))
+	tokenizer := html.NewTokenizer(strings.NewReader(body))
 	content := []string{}
 
 	// While have not hit the </endTag> tag
-	for z.Token().Data != endTag {
-		tt := z.Next()
-		if tt == html.StartTagToken {
-			t := z.Token()
-			if t.Data == readTag {
-				inner := z.Next()
+	for tokenizer.Token().Data != endTag {
+		tocNext := tokenizer.Next()
+		if tocNext == html.StartTagToken {
+			token := tokenizer.Token()
+			if token.Data == readTag {
+				inner := tokenizer.Next()
 				if inner == html.TextToken {
-					text := (string)(z.Text())
-					t := strings.TrimSpace(text)
-					content = append(content, t)
+					text := strings.TrimSpace((string)(tokenizer.Text()))
+					content = append(content, text)
 				}
 			}
 		}
