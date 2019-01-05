@@ -9,8 +9,8 @@ import (
 func TestMain(t *testing.T) {
 	// test read email outputs the correct years in []string
 	tables := []struct {
-		file string
-		ans  []string
+		input string
+		want  []string
 	}{
 		{"casesTest/01.eml", []string{"2018", "2018"}},
 		{"casesTest/02.eml", []string{"2018", "2019"}},
@@ -28,24 +28,24 @@ func TestMain(t *testing.T) {
 	}
 
 	for _, x := range tables {
-		year, _ := readEmail(x.file)
+		got, _ := readEmail(x.input)
 
-		if (year == nil) != (x.ans == nil) {
-			log.Fatalf("error 1 %s", x.file)
+		if (got == nil) != (x.want == nil) {
+			log.Fatalf("Got:%s Want:%s", x.input, x.want)
 		}
 
-		if len(year) != len(x.ans) {
-			log.Fatalf("error 2 %s", x.file)
+		if len(got) != len(x.want) {
+			log.Fatalf("error 2 %s", x.input)
 		}
 
-		for i := range year {
-			if year[i] != x.ans[i] {
-				log.Fatalf("error 3 %s", x.file)
+		for i := range got {
+			if got[i] != x.want[i] {
+				log.Fatalf("error 3 %s", x.input)
 			}
 		}
 
-		fmt.Printf("%s: pass\n", x.file)
+		fmt.Printf("%s: pass\n", x.input)
 	}
 
-	// 
+	//
 }
