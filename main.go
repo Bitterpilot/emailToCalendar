@@ -9,6 +9,8 @@ import (
 	"golang.org/x/net/html"
 
 	"github.com/jhillyerd/enmime"
+
+	g "github.com/bitterpilot/emailtocal/gmail"
 )
 
 func readEmail(v string) (year, table []string) {
@@ -89,8 +91,28 @@ func processTable(eml string) []string {
 			table2 = table[key:(key + 8)]
 		}
 	}
-	return table2
+
+func main() {
+	// use this to look for new messages
+	/*
+		listMessages := g.ListMessages("Label_24", "CCCCCCCC@riteq.com.au", "Schedule for DDDDDDDD")
+		for key, val := range listMessages {
+			fmt.Printf("------\nitem: %d\nmsgID: %s\nthdID: %s\n", key, val.Id, val.ThreadId)
 }
+	*/
+	// look up specific message
+	msgID := "***REMOVED***"
+	user := "me"
+	_, _, body := g.GetMessage(user, msgID)
+	// fmt.Println("*** Specific Message ***")
+	// fmt.Printf("msgID:%s thread:%s \nrecieved(unix timestamp):%d\nbody:\n%s\n", msgID, threadID, date, body)
+	fmt.Printf("%s", body)
+	// TODO: stream html table in to db
+	// TODO: read db where processed = false and insert into cal
+	// TODO: FIXME: msgID with an extra column(comments) "***REMOVED***"
+	// struct or map for each table row all kept in an array
+	// []map{tablerow, tablerow.....}
+	// tablerow is described in shift/shift.go
 
 	// Start of calandar stuff
 	/*
