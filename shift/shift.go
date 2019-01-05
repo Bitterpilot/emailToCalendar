@@ -56,25 +56,24 @@ func main() {
 	// fmt.Println(content)
 	nContent := [][]string{}
 	// check where the slice needs to be devided
-	point := 0
+	position := 0
 	for key, val := range content {
-		if val == "Org Level" {
-			point = key + 1
-			// fmt.Println(point)
-		}
 		if val == "Comments" {
-			point = key + 1
-			// fmt.Println(point)
+			position = key + 1
+			fmt.Println(position)
+		} else if val == "Org Level" {
+			position = key + 1
+			fmt.Println(position)
 		}
 	}
 	// fmt.Println("*********")
 	start := 0
-	end := point
-	for i := 1; i <= (len(content) / point); i++ {
+	end := position
+	for i := 1; i <= (len(content) / position); i++ {
 		// fmt.Println(content[start:end])
 		nContent = append(nContent, content[start:end])
 		start = end
-		end = end + point
+		end = end + position
 	}
 	// fmt.Println("*********")
 
