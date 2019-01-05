@@ -92,15 +92,18 @@ func processTable(eml string) []string {
 	return table2
 }
 
-func main() {
-	cases := []string{"casesTest/01.eml", "casesTest/02.eml", "casesTest/03.eml", "casesTest/04.eml", "casesTest/05.eml", "casesTest/06.eml", "casesTest/07.eml", "casesTest/08.eml", "casesTest/09.eml", "casesTest/10.eml", "casesTest/11.eml", "casesTest/12.eml", "casesTest/13.eml"}
-	// year, _ := readEmail(cases[0])
-	// for _, v := range table {
-	// fmt.Printf("%s     %t %s\n", caseyear)
-	// }
+	// Start of calandar stuff
+	/*
+		calendarID := "***REMOVED***"
+		summary := "AAAA CSO"
+		messageID := "***REMOVED***"
+		// description needs html formating
+		processTime := time.Now().Format(time.RFC822) // more format options https://golang.org/pkg/time/#pkg-constants
+		description := fmt.Sprintf(`Automatically created by emailToCal at %s<br><a href="https://mail.google.com/mail/#inbox/%s">Source</a>`, processTime, messageID)
+		timezone := "Australia/Perth"
+		dateTimeStart := "2019-01-01T09:00:00+08:00"
+		dateTimeEnd := "2019-01-01T17:00:00+08:00"
 
-	for _, v := range cases {
-		year, _ := readEmail(v)
-		fmt.Printf(`{"%s", []string{"%s", "%s"}},`, v, year[0], year[1])
-	}
+		googlecal.AddEvent(calendarID, summary, messageID, description, timezone, dateTimeStart, dateTimeEnd)
+	*/
 }
