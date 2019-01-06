@@ -1,4 +1,4 @@
-package main
+package gmailgetter
 
 import (
 	"encoding/base64"
@@ -14,6 +14,9 @@ import (
 	"golang.org/x/oauth2/google"
 	"google.golang.org/api/gmail/v1"
 )
+
+var user = "me"
+var srv = newService()
 
 // Retrieve a token, saves the token, then returns the generated client.
 func getClient(config *oauth2.Config) *http.Client {
@@ -108,20 +111,15 @@ func newService() *gmail.Service {
 	return srv
 }
 
-func main() {
-	srv := newService()
-	user := "me"
-	msgID := "***REMOVED***"
-	r, err := srv.Users.Messages.Get(user, msgID).Format("full").Do()
+// GetMessage
+func GetMessage(user, msgID string) (string, int64, []byte) {
+	msg, err := srv.Users.Messages.Get(user, msgID).Format("full").Do()
 	if err != nil {
 		// FIXME: Make sure a fatal is approraiate
 		// 		  fatal will exit to OS
 		// guide https://stackoverflow.com/a/33890104
-		log.Fatalf("%v", err)
+		log.Fatalf("Error: gmail.go/GetMessage/msg returned %v", err)
 	}
-	// TODO: only with particular lable
-	// TODO: only with particular subject
-	// TODO: lable as processed?
 
 	// Check Mime types
 	// start by setting a high part number so if a part of the desiered mime type is not found
@@ -129,8 +127,8 @@ func main() {
 	// parts is an array so a 0 default part num would result in selectig the first element in the array
 	// a milti-part email is unlikly to have more than 9000 parts (a foolish assumption?)
 	var partNum = 9999
-	for i := 0; i < len(r.Payload.Parts); i++ {
-		if r.Payload.Parts[i].MimeType == "text/html" {
+	for i := 0; i < len(msg.Payload.Parts); i++ {
+		if msg.Payload.Parts[i].MimeType == "text/html" {
 			partNum = i
 		}
 	}
@@ -138,33 +136,39 @@ func main() {
 		// FIXME: Make sure a fatal is approraiate
 		// 		  fatal will exit to OS
 		// guide https://stackoverflow.com/a/33890104
-		log.Fatalf("Mime Type not found")
+		log.Fatalf("Error: gmail.go/GetMessage text/html Mime Type not found in msgID: %s", msgID)
 	}
-
 	// Confirm Encoding type is base64 before proceding
-	partHeaders := r.Payload.Parts[partNum].Headers
+	partHeaders := msg.Payload.Parts[partNum].Headers
 	for key := range partHeaders {
 		if partHeaders[key].Name == "Content-Transfer-Encoding" {
 			if partHeaders[key].Value != "base64" {
 				// FIXME: Make sure a fatal is approraiate
 				// 		  fatal will exit to OS
 				// guide https://stackoverflow.com/a/33890104
-				log.Fatalf("Unexpected Content-Transfer-Encoding type: %v", partHeaders[key].Value)
+				log.Fatalf("Unexpected Content-Transfer-Encoding type: %v in in msgID: %s", partHeaders[key].Value, msgID)
 			}
 		}
 	}
+
 	// Decode and print
-	data := r.Payload.Parts[partNum].Body.Data
-	dataType := r.Payload.Parts[partNum].MimeType
-	emailBytes, err := base64.URLEncoding.DecodeString(data)
+	data := msg.Payload.Parts[partNum].Body.Data
+	emailBody, err := base64.URLEncoding.DecodeString(data)
 	if err != nil {
 		// FIXME: Make sure a fatal is approraiate
 		// 		  fatal will exit to OS
 		// guide https://stackoverflow.com/a/33890104
-		log.Fatalf("%v", err)
+		log.Fatalf("Unable to decode email: %v", err)
 	}
-	fmt.Printf("%s\n%s", dataType, emailBytes)
 
-	// TODO: setup a return statement
-	// return msgID, internalDate/*date recieved by gmail*/, emailBytes
+	return msg.ThreadId, msg.InternalDate, emailBody
+}
+
+// ListMessages
+func ListMessages(labelIDs, sender, subject string) []*gmail.Message {
+	listMsgs, err := srv.Users.Messages.List(user).LabelIds(labelIDs).Q(fmt.Sprintf("from:%s subject:%s", sender, subject)).Do()
+	if err != nil {
+		fmt.Println(err)
+	}
+	return listMsgs.Messages
 }
