@@ -5,16 +5,19 @@ import (
 	"os"
 	"regexp"
 	"strings"
+	"time"
 
 	"golang.org/x/net/html"
 
 	"github.com/jhillyerd/enmime"
 
+	googlecal "github.com/bitterpilot/emailtocal/calendar"
 	g "github.com/bitterpilot/emailtocal/gmail"
+	processor "github.com/bitterpilot/emailtocal/shift"
 )
 
-func readEmail(v string) (year, table []string) {
-	eml, _ := decode(v)
+func readEmail(v []byte) (year []string, table []processor.RowContents) {
+	eml := string(v[:])
 	year = readYear(eml)
 	table = processTable(eml)
 
@@ -69,27 +72,25 @@ func readYear(eml string) []string {
 	years := []string{}
 
 	// select Year values from first line
-	for _, v := range parts {
-		match, _ := regexp.MatchString("([0-9]{4})", v)
+	for _, val := range parts {
+		match, _ := regexp.MatchString("([0-9]{4})", val)
 		if match == true {
-			years = append(years, v)
+			// TODO: fix this before 2100
+			val = strings.TrimPrefix(val, "20")
+			years = append(years, val)
 		}
 	}
 	return years
 }
 
-func processTable(eml string) []string {
+func processTable(eml string) []processor.RowContents {
 	table := readTag(eml, "td", "table")
 	// days := []string{"Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"}
 	// 8 - 15
 	// 16 - 2
-	table2 := []string{}
-	for key := range table {
-		modlo := key % 8
-		if modlo == 0 {
-			table2 = table[key:(key + 8)]
-		}
-	}
+	rows := processor.ProcessRows(table)
+	return rows
+}
 
 func main() {
 	// use this to look for new messages
@@ -105,22 +106,29 @@ func main() {
 	_, _, body := g.GetMessage(user, msgID)
 	// fmt.Println("*** Specific Message ***")
 	// fmt.Printf("msgID:%s thread:%s \nrecieved(unix timestamp):%d\nbody:\n%s\n", msgID, threadID, date, body)
-	fmt.Printf("%s", body)
+	// fmt.Printf("%s", body)
 	// TODO: stream html table in to db
 	// TODO: read db where processed = false and insert into cal
+	year, rows := readEmail(body)
+	shifts := []processor.Shift{}
+	// range over all rows except the hearder row (row 0)
+	for _, row := range rows[1:] {
+		shift := processor.ProcessShift(year, row)
+		shifts = append(shifts, shift)
+	}
 
 	// Start of calandar stuff
-	/*
+	for _, shift := range shifts {
 		calendarID := "***REMOVED***"
-		summary := "AAAA CSO"
-		messageID := "***REMOVED***"
+		summary := shift.Summary
 		// description needs html formating
 		processTime := time.Now().Format(time.RFC822) // more format options https://golang.org/pkg/time/#pkg-constants
-		description := fmt.Sprintf(`Automatically created by emailToCal at %s<br><a href="https://mail.google.com/mail/#inbox/%s">Source</a>`, processTime, messageID)
+		description := fmt.Sprintf(`Automatically created by emailToCal at %s<br><a href="https://mail.google.com/mail/#inbox/%s">Source</a>`, processTime, msgID)
 		timezone := "Australia/Perth"
-		dateTimeStart := "2019-01-01T09:00:00+08:00"
-		dateTimeEnd := "2019-01-01T17:00:00+08:00"
+		dateTimeStart := shift.EventDateStart
+		dateTimeEnd := shift.EventDateEnd
 
-		googlecal.AddEvent(calendarID, summary, messageID, description, timezone, dateTimeStart, dateTimeEnd)
-	*/
+		googlecal.AddEvent(calendarID, summary, msgID, description, timezone, dateTimeStart, dateTimeEnd)
+	}
+
 }
