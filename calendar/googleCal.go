@@ -1,4 +1,4 @@
-package main
+package googlecal
 
 import (
 	"encoding/json"
@@ -89,24 +89,24 @@ func newService() *calendar.Service {
 	return srv
 }
 
-func main() {
+// AddEvent creates an event on a google calandar
+func AddEvent(calendarID, summary, messageID, description, timezone, dateTimeStart, dateTimeEnd string) {
 	srv := newService()
 
 	event := &calendar.Event{
-		Summary:     "Google I/O 2015",
-		Location:    "800 Howard St., San Francisco, CA 94103",
-		Description: "A chance to hear more about Google's developer products.",
+		Summary: summary,
+		// Location:    "800 Howard St., San Francisco, CA 94103",
+		Description: description,
 		Start: &calendar.EventDateTime{
-			DateTime: "2019-01-01T09:00:00+08:00",
-			TimeZone: "Australia/Perth",
+			DateTime: dateTimeStart,
+			TimeZone: timezone,
 		},
 		End: &calendar.EventDateTime{
-			DateTime: "2019-01-01T17:00:00+08:00",
-			TimeZone: "Australia/Perth",
+			DateTime: dateTimeEnd,
+			TimeZone: timezone,
 		},
 	}
 
-	calendarID := "primary"
 	var err error
 	event, err = srv.Events.Insert(calendarID, event).Do()
 	if err != nil {
