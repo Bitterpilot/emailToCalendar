@@ -11,7 +11,8 @@ import (
 
 	"github.com/jhillyerd/enmime"
 
-	googlecal "github.com/bitterpilot/emailtocal/calendar"
+	cal "github.com/bitterpilot/emailtocal/calendar"
+	db "github.com/bitterpilot/emailtocal/db"
 	g "github.com/bitterpilot/emailtocal/gmail"
 	processor "github.com/bitterpilot/emailtocal/shift"
 )
@@ -92,33 +93,10 @@ func processTable(eml string) []processor.RowContents {
 	return rows
 }
 
-func main() {
-	// use this to look for new messages
-	/*
-		listMessages := g.ListMessages("Label_24", "CCCCCCCC@riteq.com.au", "Schedule for DDDDDDDD")
-		for key, val := range listMessages {
-			fmt.Printf("------\nitem: %d\nmsgID: %s\nthdID: %s\n", key, val.Id, val.ThreadId)
-}
-	*/
-	// look up specific message
-	msgID := "***REMOVED***"
-	user := "me"
-	_, _, body := g.GetMessage(user, msgID)
-	// fmt.Println("*** Specific Message ***")
-	// fmt.Printf("msgID:%s thread:%s \nrecieved(unix timestamp):%d\nbody:\n%s\n", msgID, threadID, date, body)
-	// fmt.Printf("%s", body)
-	// TODO: stream html table in to db
-	// TODO: read db where processed = false and insert into cal
-	year, rows := readEmail(body)
-	shifts := []processor.Shift{}
-	// range over all rows except the hearder row (row 0)
-	for _, row := range rows[1:] {
-		shift := processor.ProcessShift(year, row)
-		shifts = append(shifts, shift)
-	}
-
+func publishShifts(shifts []processor.Shift) {
 	// Start of calandar stuff
 	for _, shift := range shifts {
+		msgID := shift.MsgID
 		calendarID := "***REMOVED***"
 		summary := shift.Summary
 		// description needs html formating
@@ -127,8 +105,62 @@ func main() {
 		timezone := "Australia/Perth"
 		dateTimeStart := shift.EventDateStart
 		dateTimeEnd := shift.EventDateEnd
+		eventID := cal.AddEvent(calendarID, summary, msgID, description, timezone, dateTimeStart, dateTimeEnd)
+		db.InsertShift(summary, description, timezone, dateTimeStart, dateTimeEnd, "1", time.Now().String(), eventID, msgID)
+	}
+}
 
-		googlecal.AddEvent(calendarID, summary, msgID, description, timezone, dateTimeStart, dateTimeEnd)
+// func error()  {
+// Func err
+// Write fail to db
+// Create event at current day for notifications
+// Write details to log
+// }
+
+func main() {
+	user := "me"
+	// use this to look for new messages
+	listMessages := g.ListMessages("Label_24", "CCCCCCCC@riteq.com.au", "Schedule for DDDDDDDD")
+	for _, val := range listMessages {
+		if val.Id == "***REMOVED***" {
+			break
+		}
+		_, date, _ := g.GetMessage(user, val.Id)
+		db.InsertEmail(val.Id, val.ThreadId, date)
+	}
+	unprocessed := db.ListUnprocssed()
+
+	shifts := []processor.Shift{}
+	for _, val := range unprocessed {
+		if val.MsgID == "***REMOVED***" {
+			break
+		}
+		if len(db.ListByThdID(val.ThdID)) > 1 {
+			fmt.Println(val.MsgID)
+		}
+		// look up specific message
+		msgID := val.MsgID
+		_, _, body := g.GetMessage(user, msgID)
+		// fmt.Println("*** Specific Message ***")
+		// fmt.Printf("msgID:%s thread:%s \nrecieved(unix timestamp):%d\nbody:\n%s\n", msgID, threadID, date, body)
+		// fmt.Printf("%s", body)
+		year, rows := readEmail(body)
+		// range over all rows except the hearder row (row 0)
+		for _, row := range rows[1:] {
+			shift := processor.ProcessShift(year, row, msgID)
+			shifts = append(shifts, shift)
+		}
+		db.MarkEmailCompleate(val.ID)
+	}
+	publishShifts(shifts)
+
+	eventID := db.ListEventIDByEmailID("***REMOVED***")
+	for _, evnt := range eventID {
+		cal.DeleteEvent("***REMOVED***", evnt)
+	}
+	eventID = db.ListEventIDByEmailID("***REMOVED***")
+	for _, evnt := range eventID {
+		cal.DeleteEvent("***REMOVED***", evnt)
 	}
 
 }

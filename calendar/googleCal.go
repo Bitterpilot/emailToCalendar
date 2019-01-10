@@ -8,6 +8,8 @@ import (
 	"net/http"
 	"os"
 
+	"github.com/bitterpilot/emailtocal/db"
+
 	"golang.org/x/net/context"
 	"golang.org/x/oauth2"
 	"golang.org/x/oauth2/google"
@@ -90,7 +92,7 @@ func newService() *calendar.Service {
 }
 
 // AddEvent creates an event on a google calandar
-func AddEvent(calendarID, summary, messageID, description, timezone, dateTimeStart, dateTimeEnd string) {
+func AddEvent(calendarID, summary, messageID, description, timezone, dateTimeStart, dateTimeEnd string) string {
 	srv := newService()
 
 	event := &calendar.Event{
@@ -112,5 +114,14 @@ func AddEvent(calendarID, summary, messageID, description, timezone, dateTimeSta
 	if err != nil {
 		log.Fatalf("Unable to create event. %v\n", err)
 	}
-	fmt.Printf("Event created: %s\n", event.HtmlLink)
+	return event.Id
+}
+
+func DeleteEvent(calendarID, eventID string) {
+	srv := newService()
+	err := srv.Events.Delete(calendarID, eventID).Do()
+	if err != nil {
+		log.Printf("Unable to delete event. %v\n", err)
+	}
+	db.MarkShiftAsDeleted(eventID)
 }
