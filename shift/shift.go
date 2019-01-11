@@ -22,7 +22,7 @@ type RowContents struct {
 // Shift
 // https://developers.google.com/calendar/extended-properties
 type Shift struct {
-	Summary string // will be the procesed orgLevel (remove everything between \ inclusive) ***REMOVED***
+	Summary string // will be the procesed orgLevel (remove everything between \ inclusive) https://regexr.com/46729
 	// zapier can do this for now        location string // Derived from orgLevel (if item before \ = AAAA then 303 if item before \ = BBBB)
 	EventDateStart string // date + startWork
 	EventDateEnd   string // date + endWork
@@ -100,7 +100,7 @@ func ProcessShift(year []string, row RowContents, msgID string) Shift {
 
 	r := regexp.MustCompile(`\\(.*?)\\`)
 	summary := r.ReplaceAllString(row.OrgLevel, " ")
-	// will be the procesed orgLevel (remove everything between \ inclusive) ***REMOVED***
+	// will be the procesed orgLevel (remove everything between \ inclusive) https://regexr.com/46729
 	// 	eventDateStart := "" // date + startWork
 	// 	eventDateEnd := ""   // date + endWork
 	// 	processed := false   // true/false/nil
