@@ -42,3 +42,4 @@ casesTest/*
 */credentials.json
 */token.json
 exampleFullOutput.json
+*.db

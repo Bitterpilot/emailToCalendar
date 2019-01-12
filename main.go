@@ -1,6 +1,7 @@
 package main
 
 import (
+	"bufio"
 	"fmt"
 	"os"
 	"regexp"
@@ -94,10 +95,13 @@ func processTable(eml string) []processor.RowContents {
 }
 
 func publishShifts(shifts []processor.Shift) {
+	reader := bufio.NewReader(os.Stdin)
+	fmt.Print("Enter select Calandar: ")
+	calendarID, _ := reader.ReadString('\n')
+	calendarID = strings.TrimSuffix(calendarID, "\n")
 	// Start of calandar stuff
 	for _, shift := range shifts {
 		msgID := shift.MsgID
-		calendarID := "***REMOVED***"
 		summary := shift.Summary
 		// description needs html formating
 		processTime := time.Now().Format(time.RFC822) // more format options https://golang.org/pkg/time/#pkg-constants
@@ -118,17 +122,29 @@ func publishShifts(shifts []processor.Shift) {
 // }
 
 func main() {
+	reader := bufio.NewReader(os.Stdin)
 	user := "me"
+	// Prompt user for info
+	fmt.Print("Enter lable: ")
+	lable, _ := reader.ReadString('\n')
+	lable = strings.TrimSuffix(lable, "\n")
+	fmt.Print("Enter senders email: ")
+	email, _ := reader.ReadString('\n')
+	email = strings.TrimSuffix(email, "\n")
+	fmt.Print("Enter subject: ")
+	subject, _ := reader.ReadString('\n')
+	subject = strings.TrimSuffix(subject, "\n")
+
 	// use this to look for new messages
-	listMessages := g.ListMessages("Label_24", "CCCCCCCC@riteq.com.au", "Schedule for DDDDDDDD")
+	listMessages := g.ListMessages(lable, email, subject)
 	for _, val := range listMessages {
-		if val.Id == "***REMOVED***" {
-			break
+		if val.Id != db.ListByMsgID(val.Id) {
+			_, date, _ := g.GetMessage(user, val.Id)
+			db.InsertEmail(val.Id, val.ThreadId, date)
 		}
-		_, date, _ := g.GetMessage(user, val.Id)
-		db.InsertEmail(val.Id, val.ThreadId, date)
 	}
 	unprocessed := db.ListUnprocssed()
+	fmt.Println(unprocessed)
 
 	shifts := []processor.Shift{}
 	for _, val := range unprocessed {
@@ -153,14 +169,5 @@ func main() {
 		db.MarkEmailCompleate(val.ID)
 	}
 	publishShifts(shifts)
-
-	eventID := db.ListEventIDByEmailID("***REMOVED***")
-	for _, evnt := range eventID {
-		cal.DeleteEvent("***REMOVED***", evnt)
-	}
-	eventID = db.ListEventIDByEmailID("***REMOVED***")
-	for _, evnt := range eventID {
-		cal.DeleteEvent("***REMOVED***", evnt)
-	}
 
 }

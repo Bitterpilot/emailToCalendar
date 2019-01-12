@@ -68,6 +68,25 @@ func ListByThdID(thdID string) []EmailMeta {
 	return thdList
 }
 
+func ListByMsgID(msgID string) string {
+	tx, err := db.Begin()
+	errorHandler(err)
+	defer tx.Commit()
+
+	var msgList string
+
+	stmt, err := tx.Query("SELECT msgID FROM emails WHERE msgID = ?", msgID)
+	errorHandler(err)
+	defer stmt.Close()
+
+	for stmt.Next() {
+		// for each row, scan the result into our composite object
+		err = stmt.Scan(&msgList)
+		errorHandler(err)
+	}
+	return msgList
+}
+
 func MarkEmailCompleate(ID int) {
 	tx, err := db.Begin()
 	errorHandler(err)
