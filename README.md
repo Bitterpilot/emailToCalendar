@@ -15,18 +15,18 @@ Take a email of shifts from riteq and put them into google calandar
 >| Fri | 04 Jan | 07:30      | 14:00    | 06:30       | 00:30  | 06:00 | AAAA\Dry Operations\Snr CSO         |
 
 ### v0.1
-    ~~decode email~~
+~~decode email~~
 
 ### v0.2
-    ~~check first line if the year dates are the same or different~~
-    ~~take the date from the date column and the year from the first line to create a full date~~
-    ~~place all vaules into a map[]?~~
+~~check first line if the year dates are the same or different~~
+~~take the date from the date column and the year from the first line to create a full date~~
+~~place all vaules into a map[]?~~
 
 ### v0.3
-    ~~use map[]? values into sqlite~~
-    ~~send each event to gcal~~
-    ~~enter successful to sqlite~~
+~~use map[]? values into sqlite~~
+~~send each event to gcal~~
+~~enter successful to sqlite~~
 
 ### v04
-    ~~check for failures~~
-    ~~Notify of failures~~
+~~check for failures~~
+~~Notify of failures~~
