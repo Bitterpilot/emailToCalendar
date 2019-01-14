@@ -12,11 +12,13 @@ import (
 var db *sql.DB
 
 func init() {
-	// os.Remove("./db/foo.db")
 	var err error
 	db, err = sql.Open("sqlite3", "./db/foo.db")
-	errorHandler(err)
+	if err != nil {
+		log.Println(err)
+	}
 
+	tx, err := db.Begin()
 	sqlStmt := `
 	CREATE TABLE IF NOT EXISTS emails (
 		ID INTEGER NOT NULL PRIMARY KEY,
@@ -27,8 +29,25 @@ func init() {
 		error BOOLEAN DEFAULT 0
 		);
 		`
-	_, err = db.Exec(sqlStmt)
-	errorHandler(err)
+	_, err = tx.Exec(sqlStmt)
+	errorHandler(err, tx)
+	tx.Commit()
+
+	tx, err = db.Begin()
+	sqlStmt = `
+	CREATE TABLE IF NOT EXISTS user (
+		ID INTEGER NOT NULL PRIMARY KEY,
+		username text,
+		userQLable text,
+		userQEmail text,
+		userQSubject text
+		);
+		`
+	_, err = tx.Exec(sqlStmt)
+	errorHandler(err, tx)
+	tx.Commit()
+
+	tx, err = db.Begin()
 	sqlStmt = `
 		CREATE TABLE IF NOT EXISTS shifts (
 			ID INTEGER NOT NULL PRIMARY KEY,
@@ -45,12 +64,12 @@ func init() {
 			msgID int NOT NULL,
 			FOREIGN KEY (msgID) REFERENCES emails ("msgID")
 			);`
-	_, err = db.Exec(sqlStmt)
-	errorHandler(err)
+	_, err = tx.Exec(sqlStmt)
+	errorHandler(err, tx)
+	tx.Commit()
 }
 
-func errorHandler(err error) {
-	var tx *sql.Tx
+func errorHandler(err error, tx *sql.Tx) {
 	if err != nil {
 		log.Printf("%v\n\n\n", errors.Cause(err))
 		tx.Rollback()
