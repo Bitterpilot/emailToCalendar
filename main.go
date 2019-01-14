@@ -95,7 +95,6 @@ func processTable(eml string) []processor.RowContents {
 }
 
 func publishShifts(shifts []processor.Shift) {
-	reader := bufio.NewReader(os.Stdin)
 	fmt.Print("Enter select Calandar: ")
 	calendarID, _ := reader.ReadString('\n')
 	calendarID = strings.TrimSuffix(calendarID, "\n")
@@ -120,9 +119,10 @@ func publishShifts(shifts []processor.Shift) {
 // Create event at current day for notifications
 // Write details to log
 // }
+var reader *bufio.Reader
 
 func main() {
-	reader := bufio.NewReader(os.Stdin)
+	reader = bufio.NewReader(os.Stdin)
 	user := "me"
 	// Prompt user for info
 	fmt.Print("Enter lable: ")
