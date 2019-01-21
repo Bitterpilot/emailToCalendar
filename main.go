@@ -12,10 +12,10 @@ import (
 
 	"github.com/jhillyerd/enmime"
 
-	cal "github.com/bitterpilot/emailtocal/calendar"
-	db "github.com/bitterpilot/emailtocal/db"
-	g "github.com/bitterpilot/emailtocal/gmail"
-	processor "github.com/bitterpilot/emailtocal/shift"
+	cal "github.com/bitterpilot/emailToCalendar/calendar"
+	db "github.com/bitterpilot/emailToCalendar/db"
+	g "github.com/bitterpilot/emailToCalendar/gmail"
+	processor "github.com/bitterpilot/emailToCalendar/shift"
 )
 
 func readEmail(v []byte) (year []string, table []processor.RowContents) {
@@ -104,7 +104,7 @@ func publishShifts(shifts []processor.Shift) {
 		summary := shift.Summary
 		// description needs html formating
 		processTime := time.Now().Format(time.RFC822) // more format options https://golang.org/pkg/time/#pkg-constants
-		description := fmt.Sprintf(`Automatically created by emailToCal at %s<br><a href="https://mail.google.com/mail/#inbox/%s">Source</a>`, processTime, msgID)
+		description := fmt.Sprintf(`Automatically created by emailToCalendar at %s<br><a href="https://mail.google.com/mail/#inbox/%s">Source</a>`, processTime, msgID)
 		timezone := "Australia/Perth"
 		dateTimeStart := shift.EventDateStart
 		dateTimeEnd := shift.EventDateEnd

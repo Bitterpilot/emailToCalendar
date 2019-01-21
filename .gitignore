@@ -39,7 +39,7 @@
 
 # Project Specific
 casesTest/*
-*/credentials.json
-*/token.json
+credentials.json
+token.json
 exampleFullOutput.json
 *.db
