@@ -13,6 +13,8 @@ import (
 	"golang.org/x/oauth2"
 	"golang.org/x/oauth2/google"
 	"google.golang.org/api/gmail/v1"
+
+	db "github.com/bitterpilot/emailToCalendar/db"
 )
 
 var user = "me"
@@ -143,10 +145,11 @@ func GetMessage(user, msgID string) (string, int64, []byte) {
 	for key := range partHeaders {
 		if partHeaders[key].Name == "Content-Transfer-Encoding" {
 			if partHeaders[key].Value != "base64" {
-				// FIXME: Make sure a fatal is approraiate
-				// 		  fatal will exit to OS
-				// guide https://stackoverflow.com/a/33890104
-				log.Fatalf("Unexpected Content-Transfer-Encoding type: %v in in msgID: %s", partHeaders[key].Value, msgID)
+				log.Printf("Unexpected Content-Transfer-Encoding type: %v in in msgID: %s", partHeaders[key].Value, msgID)
+				// mark as failed in DB
+
+				// can't use msgID until it is entered to the db
+				db.MarkEmailFailed(msg.Id, msg.ThreadId, msg.InternalDate)
 			}
 		}
 	}
