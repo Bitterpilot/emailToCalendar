@@ -5,16 +5,20 @@ import (
 	"regexp"
 )
 
-// The User struct declares basic user information and the SQL column requirements
+// The User struct declares basic user information and the SQL column
+// requirements
 type User struct {
 	ID   int    `sql:"INTEGER PRIMARY KEY"`
 	Name string `sql:"TEXT UNIQUE"`
-	// Label    string `sql:"TEXT"`                // The label the message is under
-	// Sender   string `sql:"TEXT"`                // an email address
-	// Subject  string `sql:"TEXT"`                // the expected subject line
-	// Calendar string `sql:"TEXT"`                // the calendar to place the events
+	// Label    string `sql:"TEXT"`  // The label the message is under
+	// Sender   string `sql:"TEXT"`  // an email address
+	// Subject  string `sql:"TEXT"`  // the expected subject line
+	// Calendar string `sql:"TEXT"`  // the calendar to place the events
 }
 
+// UserRepository is a data container from where the user entities data comes
+// from. This allows the low level database concept to be ignored until we are
+// read to implement it.
 type UserRepository interface {
 	Find(id int) (*User, error)
 	Store(u *User) error
