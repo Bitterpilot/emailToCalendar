@@ -23,10 +23,10 @@ type UserRepository interface {
 // reUsername is a regular expresion checking for illegal characters
 // legal characters are
 //		a-z	A-Z	0-9	- _ .
-// LANG: this only tests latin alphabet characters
+// LANGISSUE: this only tests latin alphabet characters
 var reUsername = regexp.MustCompile("^[a-zA-Z0-9-_.]+$")
 
-// ValidateUser ensures the username is valid
+// Validate ensures the username is valid
 func (u *User) Validate() error {
 	switch {
 	case len(u.Name) == 0:
