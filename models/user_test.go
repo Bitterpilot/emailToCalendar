@@ -53,7 +53,7 @@ func TestValidate(t *testing.T) {
 
 // Random string generator
 // https://stackoverflow.com/a/31832326
-// LANG: this only tests latin alphabet characters
+// LANGISSUE: this only tests latin alphabet characters
 var src = rand.NewSource(time.Now().UnixNano())
 
 const (
