@@ -1,6 +1,7 @@
 package models
 
 import (
+	"errors"
 	"math/rand"
 	"testing"
 	"time"
@@ -9,44 +10,41 @@ import (
 func TestValidate(t *testing.T) {
 	testSet := []struct {
 		name   string
-		expect string
+		expect error
 	}{
 		// empty string case
 		{name: "",
-			expect: "Invalid username"},
-		// empty string case
-		{name: "0",
-			expect: "Invalid username"},
+			expect: errors.New("Invalid username")},
 		// over 250 chars case
 		{name: RandString(251),
-			expect: "Invalid username"},
+			expect: errors.New("Invalid username")},
 		// exactly 250 chars case
 		{name: RandString(250),
-			expect: "Invalid username"},
+			expect: nil},
 		// over 249 chars case
 		{name: RandString(249),
-			expect: "nil"},
+			expect: nil},
 		// illegal character " "
 		{name: "Susie Q.",
-			expect: "Invalid username"},
+			expect: errors.New("Invalid username")},
 		// illegal character " "
 		{name: "Susie@Q.",
-			expect: "Invalid username"},
+			expect: errors.New("Invalid username")},
 		// good name
 		{name: "Susie_Q.",
-			expect: "nil"},
+			expect: nil},
 	}
-	for key, value := range testSet {
+	for _, value := range testSet {
 		user := &User{Name: value.name}
 		err := user.Validate()
-		if err != nil {
-			if err.Error() != value.expect {
-				if value.name == "" {
-					value.name = "empty sting"
-				}
-				t.Errorf("Item %d failed. Expected %s for %s",
-					key-1, value.expect, value.name)
+		if (value.expect == nil) != (err == nil) {
+			// If the length of value.name is longer than 50
+			// it's probally a random string case
+			if len(value.name) > 50 {
+				value.name = "RandString case"
 			}
+			t.Errorf("\nExpected %v\ngot %v\nCase: %s",
+				value.expect, err, value.name)
 		}
 	}
 }
