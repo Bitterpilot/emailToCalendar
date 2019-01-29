@@ -2,57 +2,40 @@ package models
 
 import (
 	"errors"
-	"log"
-	"reflect"
+	"regexp"
 )
 
-// The User struct declares basic user information and the SQL requierments
+// The User struct declares basic user information and the SQL column requirements
 type User struct {
 	ID   int    `sql:"INTEGER PRIMARY KEY"`
 	Name string `sql:"TEXT UNIQUE"`
+	// Label    string `sql:"TEXT"`                // The label the message is under
+	// Sender   string `sql:"TEXT"`                // an email address
+	// Subject  string `sql:"TEXT"`                // the expected subject line
+	// Calendar string `sql:"TEXT"`                // the calendar to place the events
 }
 
-func init() {
-	// create connection
-	db, err := NewDB("./foo.db")
-	if err != nil {
-		log.Panic(err)
-	}
-	defer db.Close()
-	tx, err := db.NewTx()
-	if err != nil {
-		log.Panic(err)
-	}
-
-	// tables to check
-	var user User
-	tableName := reflect.TypeOf(user).Name()
-
-	// Check
-	if checkTableExists(tx, tableName) == false {
-		initiateTable(tx, user)
-		tx.Commit()
-	}
-	tx.Commit()
-
+type UserRepository interface {
+	Find(id int) (*User, error)
+	Store(u *User) error
 }
 
-// CreateUser creates a new user.
-// Returns an error if user is invalid or the tx fails.
-func (tx *Tx) CreateUser(u *User) error {
-	// Validate the input.
-	if u == nil { // struct is empty
-		return errors.New("user required")
-	} else if u.Name == "" {
-		return errors.New("name required")
-	}
+// reUsername is a regular expresion checking for illegal characters
+// legal characters are
+//		a-z	A-Z	0-9	- _ .
+// LANG: this only tests latin alphabet characters
+var reUsername = regexp.MustCompile("^[a-zA-Z0-9-_.]+$")
 
-	// Perform the actual insert and return any errors.
-	_, err := tx.Exec(`INSERT INTO user (name) VALUES(?)`, u.Name)
-	if err != nil {
-		if err.Error() == "UNIQUE constraint failed: User.Name" {
-			return errors.New("User Name already taken")
-		}
+// ValidateUser ensures the username is valid
+func (u *User) Validate() error {
+	switch {
+	case len(u.Name) == 0:
+		return errors.New("Invalid username")
+	case len(u.Name) > 250:
+		return errors.New("Invalid username")
+	case !reUsername.MatchString(u.Name):
+		return errors.New("Invalid username")
+	default:
+		return nil
 	}
-	return err
 }
