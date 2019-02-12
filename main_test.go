@@ -49,3 +49,23 @@ func TestMain(t *testing.T) {
 
 	//
 }
+func TestReadYear(t *testing.T) {
+	cases := []struct {
+		Description string
+		Input       string
+		Expect      string
+	}{
+		{"simple string",
+			"Your schedule for 24 Dec 2018 through to 6 Jan 2019 is shown below",
+			""},
+	}
+
+	for _, c := range cases {
+		got, err := readYear(c.Input)
+		if err != nil {
+			fmt.Println(err)
+		}
+		fmt.Println(got)
+
+	}
+}

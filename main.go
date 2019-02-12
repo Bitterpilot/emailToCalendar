@@ -2,6 +2,7 @@ package main
 
 import (
 	"bufio"
+	"errors"
 	"fmt"
 	"os"
 	"regexp"
@@ -68,21 +69,34 @@ func readTag(body, readTag, endTag string) (table []string) {
 	return content
 }
 
-func readYear(eml string) []string {
-	t := readTag(eml, "p", "p")
-	parts := strings.Split(t[0], " ")
-	years := []string{}
+// readYear originally returned years as 2 digit ie,[18 19] so it could be used
+// more easily in the date format RFC822Z. ie("02 Jan 06 15:04 -0700").
+// it now returns a map with time.Time to allow for easier manipulation later.
+func readYear(eml string) (map[string]time.Time, error) {
+	re := regexp.MustCompile(`([\d]{1,2} [\w]{3} [\d]{4})`)
+	match := re.FindAllString(eml, -1) // FindAllString(t,n) n = max number of matches
+	// verify that there is only two dates
+	if len(match) != 2 {
+		msg := fmt.Sprintf("Cannot parse body text to get roster date range\n Expected 2 got %d", len(match))
+		return nil, errors.New(msg)
+	}
 
-	// select Year values from first line
-	for _, val := range parts {
-		match, _ := regexp.MatchString("([0-9]{4})", val)
-		if match == true {
-			// TODO: fix this before 2100
-			val = strings.TrimPrefix(val, "20")
-			years = append(years, val)
+	var dates map[string]time.Time
+	loc, _ := time.LoadLocation("Australia/Perth")
+	for i, val := range match {
+		layout := "2 Jan 2006"
+		ti, err := time.ParseInLocation(layout, val, loc)
+		if err != nil {
+			fmt.Println(err)
+		}
+		switch {
+		case i == 0:
+			dates["Start"] = ti
+		case i == 1:
+			dates["End"] = ti
 		}
 	}
-	return years
+	return dates, nil
 }
 
 func processTable(eml string) []processor.RowContents {
