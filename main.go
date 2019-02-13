@@ -46,7 +46,7 @@ func decode(msg string) (body string, err error) {
 }
 
 // readTag takes the html body and reads the contents of the readTag
-// insome cases you will want this process to end at a differnt endTag
+// in some cases you will want this process to end at a different endTag
 // eg read all table rows <td> until you reach </table>
 func readTag(body, readTag, endTag string) (table []string) {
 	tokenizer := html.NewTokenizer(strings.NewReader(body))
@@ -109,10 +109,10 @@ func processTable(eml string) []processor.RowContents {
 }
 
 func publishShifts(shifts []processor.Shift) {
-	fmt.Print("Enter select Calandar: ")
+	fmt.Print("Enter select Calendar: ")
 	calendarID, _ := reader.ReadString('\n')
 	calendarID = strings.TrimSuffix(calendarID, "\n")
-	// Start of calandar stuff
+	// Start of calendar stuff
 	for _, shift := range shifts {
 		msgID := shift.MsgID
 		summary := shift.Summary
@@ -139,9 +139,9 @@ func main() {
 	reader = bufio.NewReader(os.Stdin)
 	user := "me"
 	// Prompt user for info
-	fmt.Print("Enter lable: ")
-	lable, _ := reader.ReadString('\n')
-	lable = strings.TrimSuffix(lable, "\n")
+	fmt.Print("Enter label: ")
+	label, _ := reader.ReadString('\n')
+	label = strings.TrimSuffix(label, "\n")
 	fmt.Print("Enter senders email: ")
 	email, _ := reader.ReadString('\n')
 	email = strings.TrimSuffix(email, "\n")
@@ -150,14 +150,14 @@ func main() {
 	subject = strings.TrimSuffix(subject, "\n")
 
 	// use this to look for new messages
-	listMessages := g.ListMessages(lable, email, subject)
+	listMessages := g.ListMessages(label, email, subject)
 	for _, val := range listMessages {
 		if val.Id != db.ListByMsgID(val.Id) {
 			_, date, _ := g.GetMessage(user, val.Id)
 			db.InsertEmail(val.Id, val.ThreadId, date)
 		}
 	}
-	unprocessed := db.ListUnprocssed()
+	unprocessed := db.ListUnprocessed()
 	fmt.Println(unprocessed)
 
 	shifts := []processor.Shift{}
@@ -172,7 +172,7 @@ func main() {
 		msgID := val.MsgID
 		_, _, body := g.GetMessage(user, msgID)
 		// fmt.Println("*** Specific Message ***")
-		// fmt.Printf("msgID:%s thread:%s \nrecieved(unix timestamp):%d\nbody:\n%s\n", msgID, threadID, date, body)
+		// fmt.Printf("msgID:%s thread:%s \nreceived(unix timestamp):%d\nbody:\n%s\n", msgID, threadID, date, body)
 		// fmt.Printf("%s", body)
 		year, rows := readEmail(body)
 		// range over all rows except the hearder row (row 0)
@@ -180,7 +180,7 @@ func main() {
 			shift := processor.ProcessShift(year, row, msgID)
 			shifts = append(shifts, shift)
 		}
-		db.MarkEmailCompleate(val.ID)
+		db.MarkEmailCompleat(val.ID)
 	}
 	publishShifts(shifts)
 

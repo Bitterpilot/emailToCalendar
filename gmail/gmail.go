@@ -13,8 +13,6 @@ import (
 	"golang.org/x/oauth2"
 	"golang.org/x/oauth2/google"
 	"google.golang.org/api/gmail/v1"
-
-	db "github.com/bitterpilot/emailToCalendar/db"
 )
 
 var user = "me"
@@ -42,7 +40,7 @@ func getTokenFromWeb(config *oauth2.Config) *oauth2.Token {
 
 	var authCode string
 	if _, err := fmt.Scan(&authCode); err != nil {
-		// FIXME: Make sure a fatal is approraiate
+		// FIXME: Make sure a fatal is appropriate
 		// 		  fatal will exit to OS
 		// guide https://stackoverflow.com/a/33890104
 		log.Fatalf("Unable to read authorization code: %v", err)
@@ -50,7 +48,7 @@ func getTokenFromWeb(config *oauth2.Config) *oauth2.Token {
 
 	tok, err := config.Exchange(context.TODO(), authCode)
 	if err != nil {
-		// FIXME: Make sure a fatal is approraiate
+		// FIXME: Make sure a fatal is appropriate
 		// 		  fatal will exit to OS
 		// guide https://stackoverflow.com/a/33890104
 		log.Fatalf("Unable to retrieve token from web: %v", err)
@@ -75,7 +73,7 @@ func saveToken(path string, token *oauth2.Token) {
 	fmt.Printf("Saving credential file to: %s\n", path)
 	f, err := os.OpenFile(path, os.O_RDWR|os.O_CREATE|os.O_TRUNC, 0600)
 	if err != nil {
-		// FIXME: Make sure a fatal is approraiate
+		// FIXME: Make sure a fatal is appropriate
 		// 		  fatal will exit to OS
 		// guide https://stackoverflow.com/a/33890104
 		log.Fatalf("Unable to cache oauth token: %v", err)
@@ -87,7 +85,7 @@ func saveToken(path string, token *oauth2.Token) {
 func newService() *gmail.Service {
 	b, err := ioutil.ReadFile("credentials.json")
 	if err != nil {
-		// FIXME: Make sure a fatal is approraiate
+		// FIXME: Make sure a fatal is appropriate
 		// 		  fatal will exit to OS
 		// guide https://stackoverflow.com/a/33890104
 		log.Fatalf("Unable to read client secret file: %v", err)
@@ -96,7 +94,7 @@ func newService() *gmail.Service {
 	// If modifying these scopes, delete your previously saved token.json.
 	config, err := google.ConfigFromJSON(b, gmail.GmailReadonlyScope)
 	if err != nil {
-		// FIXME: Make sure a fatal is approraiate
+		// FIXME: Make sure a fatal is appropriate
 		// 		  fatal will exit to OS
 		// guide https://stackoverflow.com/a/33890104
 		log.Fatalf("Unable to parse client secret file to config: %v", err)
@@ -105,7 +103,7 @@ func newService() *gmail.Service {
 
 	srv, err := gmail.New(client)
 	if err != nil {
-		// FIXME: Make sure a fatal is approraiate
+		// FIXME: Make sure a fatal is appropriate
 		// 		  fatal will exit to OS
 		// guide https://stackoverflow.com/a/33890104
 		log.Fatalf("Unable to retrieve Gmail client: %v", err)
@@ -117,17 +115,17 @@ func newService() *gmail.Service {
 func GetMessage(user, msgID string) (string, int64, []byte) {
 	msg, err := srv.Users.Messages.Get(user, msgID).Format("full").Do()
 	if err != nil {
-		// FIXME: Make sure a fatal is approraiate
+		// FIXME: Make sure a fatal is appropriate
 		// 		  fatal will exit to OS
 		// guide https://stackoverflow.com/a/33890104
 		log.Fatalf("Error: gmail.go/GetMessage/msg returned %v", err)
 	}
 
 	// Check Mime types
-	// start by setting a high part number so if a part of the desiered mime type is not found
+	// start by setting a high part number so if a part of the desired mime type is not found
 	// we can fail gracefully.
-	// parts is an array so a 0 default part num would result in selectig the first element in the array
-	// a milti-part email is unlikly to have more than 9000 parts (a foolish assumption?)
+	// parts is an array so a 0 default part num would result in selecting the first element in the array
+	// a multi-part email is unlikely to have more than 9000 parts (a foolish assumption?)
 	var partNum = 9999
 	for i := 0; i < len(msg.Payload.Parts); i++ {
 		if msg.Payload.Parts[i].MimeType == "text/html" {
@@ -135,7 +133,7 @@ func GetMessage(user, msgID string) (string, int64, []byte) {
 		}
 	}
 	if partNum == 9999 {
-		// FIXME: Make sure a fatal is approraiate
+		// FIXME: Make sure a fatal is appropriate
 		// 		  fatal will exit to OS
 		// guide https://stackoverflow.com/a/33890104
 		log.Fatalf("Error: gmail.go/GetMessage text/html Mime Type not found in msgID: %s", msgID)
@@ -145,11 +143,10 @@ func GetMessage(user, msgID string) (string, int64, []byte) {
 	for key := range partHeaders {
 		if partHeaders[key].Name == "Content-Transfer-Encoding" {
 			if partHeaders[key].Value != "base64" {
-				log.Printf("Unexpected Content-Transfer-Encoding type: %v in in msgID: %s", partHeaders[key].Value, msgID)
-				// mark as failed in DB
-
-				// can't use msgID until it is entered to the db
-				db.MarkEmailFailed(msg.Id, msg.ThreadId, msg.InternalDate)
+				// FIXME: Make sure a fatal is appropriate
+				// 		  fatal will exit to OS
+				// guide https://stackoverflow.com/a/33890104
+				log.Fatalf("Unexpected Content-Transfer-Encoding type: %v in in msgID: %s", partHeaders[key].Value, msgID)
 			}
 		}
 	}
@@ -158,7 +155,7 @@ func GetMessage(user, msgID string) (string, int64, []byte) {
 	data := msg.Payload.Parts[partNum].Body.Data
 	emailBody, err := base64.URLEncoding.DecodeString(data)
 	if err != nil {
-		// FIXME: Make sure a fatal is approraiate
+		// FIXME: Make sure a fatal is appropriate
 		// 		  fatal will exit to OS
 		// guide https://stackoverflow.com/a/33890104
 		log.Fatalf("Unable to decode email: %v", err)
@@ -169,9 +166,9 @@ func GetMessage(user, msgID string) (string, int64, []byte) {
 
 // ListMessages
 func ListMessages(labelIDs, sender, subject string) []*gmail.Message {
-	listMsgs, err := srv.Users.Messages.List(user).LabelIds(labelIDs).Q(fmt.Sprintf("from:%s subject:%s", sender, subject)).Do()
+	listMsg, err := srv.Users.Messages.List(user).LabelIds(labelIDs).Q(fmt.Sprintf("from:%s subject:%s", sender, subject)).Do()
 	if err != nil {
 		fmt.Println(err)
 	}
-	return listMsgs.Messages
+	return listMsg.Messages
 }
