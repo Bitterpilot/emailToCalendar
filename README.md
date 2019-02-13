@@ -1,5 +1,5 @@
 # Gmail to gCal
-Take a email of shifts from riteq and put them into google calandar
+Take a email of shifts from riteq and put them into google calendar
 
 ### Sample
 >Your schedule for 24 Dec 2018 through to 6 Jan 2019 is shown below
@@ -20,11 +20,11 @@ Take a email of shifts from riteq and put them into google calandar
 ### v0.2
 ~~check first line if the year dates are the same or different~~
 ~~take the date from the date column and the year from the first line to create a full date~~
-~~place all vaules into a map[]?~~
+~~place all values into a map[]?~~
 
 ### v0.3
 ~~use map[]? values into sqlite~~
-~~send each event to gcal~~
+~~send each event to google cal~~
 ~~enter successful to sqlite~~
 
 ### v04

@@ -2,7 +2,7 @@ package db
 
 import "fmt"
 
-func InsertEmail(msgID, thdID string, timeRecieved int64) {
+func InsertEmail(msgID, thdID string, timeReceived int64) {
 	tx, err := db.Begin()
 	errorHandler(err, tx)
 	defer tx.Commit()
@@ -15,10 +15,10 @@ func InsertEmail(msgID, thdID string, timeRecieved int64) {
 
 	// fmt.Printf("%s\n%s\n---\n", msgID, eMsg)
 	if msgID != eMsg {
-		stmt, err := tx.Prepare("insert into emails(msgID,thdID, timeRecieved) values(?, ?, ?)")
+		stmt, err := tx.Prepare("insert into emails(msgID,thdID, timeReceived) values(?, ?, ?)")
 		errorHandler(err, tx)
 		defer stmt.Close()
-		_, err = stmt.Exec(msgID, thdID, timeRecieved)
+		_, err = stmt.Exec(msgID, thdID, timeReceived)
 		errorHandler(err, tx)
 	}
 }
@@ -29,7 +29,7 @@ type EmailMeta struct {
 	ThdID string
 }
 
-func ListUnprocssed() []EmailMeta {
+func ListUnprocessed() []EmailMeta {
 	tx, err := db.Begin()
 	errorHandler(err, tx)
 	defer tx.Commit()
@@ -87,7 +87,7 @@ func ListByMsgID(msgID string) string {
 	return msgList
 }
 
-func MarkEmailCompleate(ID int) {
+func MarkEmailCompleat(ID int) {
 	tx, err := db.Begin()
 	errorHandler(err, tx)
 	defer tx.Commit()

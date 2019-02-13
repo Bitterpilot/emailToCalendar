@@ -91,7 +91,7 @@ func newService() *calendar.Service {
 	return srv
 }
 
-// AddEvent creates an event on a google calandar
+// AddEvent creates an event on a google calendar
 func AddEvent(calendarID, summary, messageID, description, timezone, dateTimeStart, dateTimeEnd string) string {
 	srv := newService()
 

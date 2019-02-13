@@ -24,7 +24,7 @@ func init() {
 		ID INTEGER NOT NULL PRIMARY KEY,
 		msgID text,
 		thdID text,
-		timeRecieved INTEGER,
+		timeReceived INTEGER,
 		proccessed BOOLEAN DEFAULT 0,
 		error BOOLEAN DEFAULT 0
 		);
@@ -38,7 +38,7 @@ func init() {
 	CREATE TABLE IF NOT EXISTS user (
 		ID INTEGER NOT NULL PRIMARY KEY,
 		username text,
-		userQLable text,
+		userQLabel text,
 		userQEmail text,
 		userQSubject text
 		);
