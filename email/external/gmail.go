@@ -1,4 +1,4 @@
-package repository
+package external
 
 import (
 	"encoding/json"
@@ -17,12 +17,34 @@ import (
 	"github.com/bitterpilot/emailToCalendar/models"
 )
 
+func (srv *gmailSrv) ListEmails(user string) []*models.Email {
+	listMsg, err := srv.srv.Users.Messages.List(user).Do()
+	if err != nil {
+		fmt.Println(err)
+	}
+
+	// convert gmail.message struct to models.Email
+	var rt []*models.Email
+	for _, msg := range listMsg.Messages {
+		ms := &models.Email{MsgID: msg.Id, ThdID: msg.ThreadId}
+		rt = append(rt, ms)
+	}
+
+	return rt
+}
+
+func (srv *gmailSrv) GetEmail(user, id string) gmail.Message {
+	getMsg, err := srv.srv.Users.Messages.Get(user, id).Do()
+
+
+}
+
 type gmailSrv struct {
 	srv *gmail.Service
 }
 
 // NewGmailSrv ...
-func NewGmailSrv(user string) email.Repository {
+func NewGmailSrv(user string) email.External {
 	b, err := ioutil.ReadFile("credentials.json")
 	if err != nil {
 		log.Fatalf("Unable to read client secret file: %v", err)
@@ -40,21 +62,6 @@ func NewGmailSrv(user string) email.Repository {
 		log.Fatalf("Unable to retrieve Gmail client: %v", err)
 	}
 	return &gmailSrv{srv}
-}
-
-func (srv *gmailSrv) ListEmails(user string) []*models.Email {
-	listMsg, err := srv.srv.Users.Messages.List(user).Do()
-	if err != nil {
-		fmt.Println(err)
-	}
-
-	var rt []*models.Email
-	for _, msg := range listMsg.Messages {
-		ms := &models.Email{MsgID: msg.Id, ThdID: msg.ThreadId}
-		rt = append(rt, ms)
-	}
-
-	return rt
 }
 
 // Retrieve a token, saves the token, then returns the generated client.
