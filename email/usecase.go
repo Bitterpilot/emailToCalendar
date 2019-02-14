@@ -8,6 +8,6 @@ type Usecase interface {
 	ListEmails(user string) []*models.Email
 }
 
-type Repository interface {
+type External interface {
 	ListEmails(user string) []*models.Email
 }

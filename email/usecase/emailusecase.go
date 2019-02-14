@@ -6,17 +6,17 @@ import (
 )
 
 type emailUsecase struct {
-	emailRepository email.Repository
+	emailexternal email.external
 }
 
 // NewEmailUsecase ...
-func NewEmailUsecase(e email.Repository) email.Usecase {
+func NewEmailUsecase(e email.external) email.Usecase {
 	return &emailUsecase{
-		emailRepository: e,
+		emailexternal: e,
 	}
 }
 
 func (e *emailUsecase) ListEmails(user string) []*models.Email {
-	item := e.emailRepository.ListEmails(user)
+	item := e.emailexternal.ListEmails(user)
 	return item
 }
