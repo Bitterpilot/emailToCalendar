@@ -31,13 +31,13 @@ func (srv *gmailSrv) ListEmails(user string) []*models.Email {
 	}
 
 	// convert gmail.message struct to models.Email
-	var rt []*models.Email
+	var emails []*models.Email
 	for _, msg := range listMsg.Messages {
 		ms := &models.Email{MsgID: msg.Id, ThdID: msg.ThreadId}
-		rt = append(rt, ms)
+		emails = append(emails, ms)
 	}
 
-	return rt
+	return emails
 }
 
 func (srv *gmailSrv) GetEmail(user string, msg *models.Email) *models.Email {
