@@ -17,9 +17,13 @@ func main() {
 		fmt.Println(err)
 	}
 	user := viper.GetString(`user`)
+	query := fmt.Sprintf("from:%s subject:%s",
+		viper.GetString(`gmailFilter.sender`),
+		viper.GetString(`gmailFilter.subject`))
+	label := viper.GetString(`gmailFilter.label`)
 
 	gmail := external.NewGmailSrv(user)
-	listEmails := email.External.ListEmails(gmail, user)
+	listEmails := email.External.ListEmails(gmail, user, query, label)
 	// for _, eml := range listEmails {
 	// 	fmt.Println(eml.MsgID, eml.ThdID)
 	// }
