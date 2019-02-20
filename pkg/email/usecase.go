@@ -1,7 +1,7 @@
 package email
 
 import (
-	"github.com/bitterpilot/emailToCalendar/models"
+	"github.com/bitterpilot/emailToCalendar/pkg/models"
 )
 
 type Usecase interface {

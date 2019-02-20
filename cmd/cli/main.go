@@ -5,8 +5,8 @@ import (
 
 	"github.com/spf13/viper"
 
-	"github.com/bitterpilot/emailToCalendar/email"
-	"github.com/bitterpilot/emailToCalendar/email/external"
+	"github.com/bitterpilot/emailToCalendar/pkg/email"
+	"github.com/bitterpilot/emailToCalendar/pkg/email/external"
 )
 
 func main() {

@@ -16,8 +16,8 @@ import (
 	"golang.org/x/oauth2/google"
 	"google.golang.org/api/gmail/v1"
 
-	"github.com/bitterpilot/emailToCalendar/email"
-	"github.com/bitterpilot/emailToCalendar/models"
+	"github.com/bitterpilot/emailToCalendar/pkg/email"
+	"github.com/bitterpilot/emailToCalendar/pkg/models"
 )
 
 func (srv *gmailSrv) ListEmails(user string) []*models.Email {

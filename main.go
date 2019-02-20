@@ -13,10 +13,10 @@ import (
 
 	"github.com/jhillyerd/enmime"
 
-	cal "github.com/bitterpilot/emailToCalendar/calendar"
-	db "github.com/bitterpilot/emailToCalendar/db"
-	g "github.com/bitterpilot/emailToCalendar/gmail"
-	processor "github.com/bitterpilot/emailToCalendar/shift"
+	cal "github.com/bitterpilot/emailToCalendar/pkg/calendar"
+	db "github.com/bitterpilot/emailToCalendar/pkg/db"
+	g "github.com/bitterpilot/emailToCalendar/pkg/gmail"
+	processor "github.com/bitterpilot/emailToCalendar/pkg/shift"
 )
 
 func readEmail(v []byte) (year []string, table []processor.RowContents) {
