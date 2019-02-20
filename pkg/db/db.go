@@ -1,4 +1,5 @@
 package db
+//https://medium.com/@wembleyleach/how-to-use-the-official-mongodb-go-driver-9f8aff716fdb
 
 import (
 	"database/sql"
