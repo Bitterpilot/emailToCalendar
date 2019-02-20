@@ -17,6 +17,6 @@ type Shift struct {
 // from. This allows the low level database concept to be ignored until we are
 // read to implement it.
 type ShiftRepository interface {
-	Find(id int) (*Email, error)
-	Store(u *Email) error
+	Find(id int) (*Shift, error)
+	Store(u *Shift) error
 }
