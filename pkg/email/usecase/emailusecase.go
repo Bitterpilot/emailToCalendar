@@ -1,8 +1,8 @@
 package usecase
 
 import (
-	"github.com/bitterpilot/emailToCalendar/email"
-	"github.com/bitterpilot/emailToCalendar/models"
+	"github.com/bitterpilot/emailToCalendar/pkg/email"
+	"github.com/bitterpilot/emailToCalendar/pkg/models"
 )
 
 type emailUsecase struct {

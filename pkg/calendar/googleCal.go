@@ -8,7 +8,7 @@ import (
 	"net/http"
 	"os"
 
-	"github.com/bitterpilot/emailToCalendar/db"
+	"github.com/bitterpilot/emailToCalendar/pkg/db"
 
 	"golang.org/x/net/context"
 	"golang.org/x/oauth2"
