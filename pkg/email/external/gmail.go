@@ -8,8 +8,6 @@ import (
 	"net/http"
 	"os"
 
-	"github.com/spf13/viper"
-
 	"golang.org/x/net/context"
 	"golang.org/x/oauth2"
 	"golang.org/x/oauth2/google"
@@ -18,11 +16,7 @@ import (
 	"github.com/bitterpilot/emailToCalendar/pkg/email"
 )
 
-func (srv *gmailSrv) ListEmails(user string) []*email.Msg {
-	query := fmt.Sprintf("from:%s subject:%s",
-		viper.GetString(`gmailFilter.sender`),
-		viper.GetString(`gmailFilter.subject`))
-	label := viper.GetString(`gmailFilter.label`)
+func (srv *gmailSrv) ListEmails(user, query, label string) []*email.Msg {
 	listMsg, err := srv.srv.Users.Messages.List(user).LabelIds(label).Q(query).Do()
 	if err != nil {
 		log.Printf("Could not list emails: %v", err)
