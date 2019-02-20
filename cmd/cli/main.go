@@ -18,15 +18,15 @@ func main() {
 	}
 	user := viper.GetString(`user`)
 
-	usecase := external.NewGmailSrv(user)
-	listEmails := email.External.ListEmails(usecase, user)
+	gmail := external.NewGmailSrv(user)
+	listEmails := email.External.ListEmails(gmail, user)
 	// for _, eml := range listEmails {
 	// 	fmt.Println(eml.MsgID, eml.ThdID)
 	// }
 
 	msg := listEmails[len(listEmails)-1]
 	// msg := listEmails[2]
-	body := email.External.GetEmail(usecase, user, msg).Body
+	body := email.External.GetEmail(gmail, user, msg).Body
 	fmt.Printf("%s\n", body)
 	fmt.Println()
 	d, err := base64.URLEncoding.DecodeString(body)
