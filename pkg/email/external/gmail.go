@@ -1,7 +1,6 @@
 package external
 
 import (
-	"encoding/base64"
 	"encoding/json"
 	"fmt"
 	"io/ioutil"
@@ -17,10 +16,9 @@ import (
 	"google.golang.org/api/gmail/v1"
 
 	"github.com/bitterpilot/emailToCalendar/pkg/email"
-	"github.com/bitterpilot/emailToCalendar/pkg/models"
 )
 
-func (srv *gmailSrv) ListEmails(user string) []*models.Email {
+func (srv *gmailSrv) ListEmails(user string) []*email.Msg {
 	query := fmt.Sprintf("from:%s subject:%s",
 		viper.GetString(`gmailFilter.sender`),
 		viper.GetString(`gmailFilter.subject`))
@@ -30,18 +28,21 @@ func (srv *gmailSrv) ListEmails(user string) []*models.Email {
 		log.Printf("Could not list emails: %v", err)
 	}
 
-	// convert gmail.message struct to models.Email
-	var emails []*models.Email
+	// convert gmail.message struct to email.Msg
+	var emails []*email.Msg
 	for _, msg := range listMsg.Messages {
-		ms := &models.Email{MsgID: msg.Id, ThdID: msg.ThreadId}
+		ms := &email.Msg{
+			ExternalID: msg.Id,
+			ThreadID:   msg.ThreadId,
+		}
 		emails = append(emails, ms)
 	}
 
 	return emails
 }
 
-func (srv *gmailSrv) GetEmail(user string, msg *models.Email) *models.Email {
-	getMsg, err := srv.srv.Users.Messages.Get(user, msg.MsgID).Do()
+func (srv *gmailSrv) GetEmail(user string, msg *email.Msg) *email.Msg {
+	getMsg, err := srv.srv.Users.Messages.Get(user, msg.ExternalID).Do()
 	if err != nil {
 		log.Printf("Could not retrieve email: %v", err)
 	}
@@ -59,7 +60,10 @@ func (srv *gmailSrv) GetEmail(user string, msg *models.Email) *models.Email {
 		}
 	}
 	if partNum == 9999 {
-		log.Fatalf(`Error: gmail.go/GetMessage text/html Mime Type not found in msgID: %s`, msg.MsgID)
+		log.Fatalf(
+			`
+Error: gmail.go/GetMessage text/html Mime Type not found in msgID: %s`,
+			msg.ExternalID)
 	}
 
 	data := getMsg.Payload.Parts[partNum].Body.Data
@@ -69,16 +73,9 @@ func (srv *gmailSrv) GetEmail(user string, msg *models.Email) *models.Email {
 		if partHeaders[key].Name == "Content-Transfer-Encoding" {
 			switch {
 			case partHeaders[key].Value == "base64":
-				msg.Body, err = base64.URLEncoding.DecodeString(data)
-				if err != nil {
-					fmt.Println(err)
-				}
+				msg.Body = data
 			case partHeaders[key].Value == "quoted-printable":
-				dCode, _ := base64.URLEncoding.DecodeString(data)
-				if err != nil {
-					fmt.Println(err)
-				}
-				msg.Body = []byte(dCode)
+				msg.Body = data
 			default:
 				fmt.Printf("can not identify Content-Transfer-Encoding got: %v",
 					partHeaders[key].Value)
@@ -87,8 +84,8 @@ func (srv *gmailSrv) GetEmail(user string, msg *models.Email) *models.Email {
 		}
 	}
 
-	// convert gmail.message struct to models.Email
-	msg.Received = getMsg.InternalDate
+	// convert gmail.message struct to email.Msg
+	msg.ReceivedTime = getMsg.InternalDate
 
 	return msg
 }
