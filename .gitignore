@@ -44,3 +44,4 @@ token.json
 config.json
 exampleFullOutput.json
 *.db
+*.sqlite
