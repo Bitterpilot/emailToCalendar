@@ -103,23 +103,3 @@ func MarkEmailCompleat(ID int) {
 
 	// fmt.Println(affect)
 }
-
-// can't use ID until it is entered to the db
-func MarkEmailFailed(msgID, thdID string, timeRecieved int64) {
-	InsertEmail(msgID, thdID, timeRecieved)
-
-	tx, err := db.Begin()
-	errorHandler(err)
-	defer tx.Commit()
-
-	stmt, err := tx.Prepare("UPDATE emails SET error=1 WHERE msgID=?")
-	errorHandler(err)
-
-	res, err := stmt.Exec(msgID)
-	errorHandler(err)
-
-	_, err = res.RowsAffected()
-	errorHandler(err)
-
-	// fmt.Println(affect)
-}
