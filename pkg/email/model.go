@@ -8,3 +8,9 @@ type Msg struct {
 	ReceivedTime int64
 	Body         string
 }
+
+type External interface {
+	ListEmails(user, query, label string) []*Msg
+	GetEmail(user string, msg *Msg) *Msg
+}
+
