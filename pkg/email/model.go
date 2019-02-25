@@ -14,3 +14,14 @@ type External interface {
 	GetEmail(user string, msg *Msg) *Msg
 }
 
+type Store interface {
+	Store(msg Msg) error
+	FindByID(ID int) Msg
+	FindByExternalID(id int) Msg
+	FindByExternalThreadID(id int) Msg
+}
+
+type Row interface {
+	Scan(dest ...interface{})
+	Next() bool
+}
