@@ -13,13 +13,16 @@ import (
 
 // ReadDate reads the time that the shift email covers
 func (msg *Msg) ReadDate() (map[string]time.Time, error) {
-	decoded, _ := base64.URLEncoding.DecodeString(msg.Body)
+	decoded, err := base64.StdEncoding.DecodeString(msg.Body)
+	if err != nil {
+		fmt.Println(err)
+	}
 	sDecode := string(decoded)
 	re := regexp.MustCompile(`([\d]{1,2} [\w]{3} [\d]{4})`)
 	match := re.FindAllString(sDecode, -1) // FindAllString(t,n) n = max number of matches
 	// verify that there is only two dates
 	if len(match) != 2 {
-		e := fmt.Sprintf("Cannot parse body text to get roster date range\n Expected 2 got %d", len(match))
+		e := fmt.Sprintf("Cannot parse body text to get roster date range\n Expected 2 got %d\n%v", len(match), match)
 		return nil, errors.New(e)
 	}
 
