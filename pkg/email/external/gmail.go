@@ -2,6 +2,7 @@ package external
 
 import (
 	"encoding/json"
+	"errors"
 	"fmt"
 	"io/ioutil"
 	"log"
@@ -16,8 +17,8 @@ import (
 	"github.com/bitterpilot/emailToCalendar/pkg/email"
 )
 
-func (srv *gmailSrv) ListEmails(user, query, label string) []*email.Msg {
-	listMsg, err := srv.srv.Users.Messages.List(user).LabelIds(label).Q(query).Do()
+func (gmail *gmailSrv) ListEmails(user, query, label string) []*email.Msg {
+	listMsg, err := gmail.srv.Users.Messages.List(user).LabelIds(label).Q(query).Do()
 	if err != nil {
 		log.Printf("Could not list emails: %v", err)
 	}
@@ -35,12 +36,7 @@ func (srv *gmailSrv) ListEmails(user, query, label string) []*email.Msg {
 	return emails
 }
 
-func (srv *gmailSrv) GetEmail(user string, msg *email.Msg) *email.Msg {
-	getMsg, err := srv.srv.Users.Messages.Get(user, msg.ExternalID).Do()
-	if err != nil {
-		log.Printf("Could not retrieve email: %v", err)
-	}
-
+func getbody(getMsg *gmail.Message) (string, error) {
 	// Check Mime types
 	// start by setting a high part number so if a part of the desired mime
 	// type is not found we can fail gracefully.
@@ -55,9 +51,8 @@ func (srv *gmailSrv) GetEmail(user string, msg *email.Msg) *email.Msg {
 	}
 	if partNum == 9999 {
 		log.Fatalf(
-			`
-Error: gmail.go/GetMessage text/html Mime Type not found in msgID: %s`,
-			msg.ExternalID)
+			`Error: gmail.go/GetMessage text/html Mime Type not found in msgID: %s`,
+			getMsg.Id)
 	}
 
 	data := getMsg.Payload.Parts[partNum].Body.Data
@@ -67,20 +62,29 @@ Error: gmail.go/GetMessage text/html Mime Type not found in msgID: %s`,
 		if partHeaders[key].Name == "Content-Transfer-Encoding" {
 			switch {
 			case partHeaders[key].Value == "base64":
-				msg.Body = data
+				return data, nil
 			case partHeaders[key].Value == "quoted-printable":
-				msg.Body = data
+				return data, nil
 			default:
-				fmt.Printf("can not identify Content-Transfer-Encoding got: %v",
-					partHeaders[key].Value)
+				errMsg := fmt.Sprintf("can not identify Content-Transfer-Encoding got: %v",
+				partHeaders[key].Value)
+				return "", errors.New(errMsg)
 			}
-
 		}
 	}
+	return "", errors.New("")
+}
 
+func (gmail *gmailSrv) GetEmail(user string, msg *email.Msg) *email.Msg {
+	getMsg, err := gmail.srv.Users.Messages.Get(user, msg.ExternalID).Do()
+	if err != nil {
+		log.Printf("Could not retrieve email: %v", err)
+	}
+
+	// body
+	msg.Body, err = getbody(getMsg)
 	// convert gmail.message struct to email.Msg
 	msg.ReceivedTime = getMsg.InternalDate
-
 	return msg
 }
 
