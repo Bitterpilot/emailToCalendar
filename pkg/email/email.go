@@ -55,7 +55,7 @@ func (msg *Msg) ReadTable() ([]map[string]string, error) {
 
 func processRows(content []string) []map[string]string {
 	var nContent []map[string]string
-	// check where the slice needs to be devided
+	// check where the slice needs to be divided
 	var positions []int
 	for key, val := range content {
 		switch {
