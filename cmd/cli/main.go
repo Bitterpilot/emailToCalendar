@@ -6,7 +6,7 @@ import (
 	"github.com/spf13/viper"
 
 	"github.com/bitterpilot/emailToCalendar/pkg/email/db"
-	"github.com/bitterpilot/emailToCalendar/pkg/email/external"
+	"github.com/bitterpilot/emailToCalendar/pkg/email/external/gmail"
 )
 
 func main() {
@@ -15,20 +15,20 @@ func main() {
 	if err := viper.ReadInConfig(); err != nil {
 		fmt.Println(err)
 	}
-	// user := viper.GetString(`user`)
-	// query := fmt.Sprintf("from:%s subject:%s",
-	// 	viper.GetString(`gmailFilter.sender`),
-	// 	viper.GetString(`gmailFilter.subject`))
-	// label := viper.GetString(`gmailFilter.label`)
+	user := viper.GetString(`user`)
+	query := fmt.Sprintf("from:%s subject:%s",
+		viper.GetString(`gmailFilter.sender`),
+		viper.GetString(`gmailFilter.subject`))
+	label := viper.GetString(`gmailFilter.label`)
 
-	// gmail := external.NewGmailSrv(user)
-	// listEmails := gmail.ListEmails(user, query, label)
+	g := gmail.NewGmailSrv(user)
+	listEmails := g.ListEmails(user, query, label)
 
-	// msg := listEmails[len(listEmails)-1]
-	// msg.Body = gmail.GetEmail(user, msg).Body
+	msg := listEmails[len(listEmails)-1]
+	msg.Body = g.GetEmail(user, msg).Body
 
-	// x, _ := msg.ReadDate()
-	// fmt.Println(x)
+	x, _ := msg.ReadDate()
+	fmt.Println(x)
 
 	dbHandler := db.NewSqliteHandler(viper.GetString(`db`))
 	handlers := make(map[string]external.DbHandler)

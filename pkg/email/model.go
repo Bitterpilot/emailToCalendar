@@ -10,8 +10,8 @@ type Msg struct {
 }
 
 type External interface {
-	ListEmails(user, query, label string) []*Msg
-	GetEmail(user string, msg *Msg) *Msg
+	ListEmails(query, label string) []*Msg
+	GetEmail(msg *Msg) *Msg
 }
 
 type Store interface {
