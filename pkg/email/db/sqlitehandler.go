@@ -4,7 +4,7 @@ import (
 	"database/sql"
 	"fmt"
 
-	"github.com/bitterpilot/emailToCalendar/pkg/email/external"
+	"github.com/bitterpilot/emailToCalendar/pkg/email/interfaces/store"
 
 	_ "github.com/mattn/go-sqlite3"
 )
@@ -17,7 +17,7 @@ func (handler *SqliteHandler) Execute(statement string) {
 	handler.Conn.Exec(statement)
 }
 
-func (handler *SqliteHandler) Query(statement string) external.Row {
+func (handler *SqliteHandler) Query(statement string) store.Row {
 	rows, err := handler.Conn.Query(statement)
 	if err != nil {
 		fmt.Println(err)

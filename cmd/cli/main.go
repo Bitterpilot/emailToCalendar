@@ -6,8 +6,8 @@ import (
 	"github.com/spf13/viper"
 
 	"github.com/bitterpilot/emailToCalendar/pkg/email/db"
-	"github.com/bitterpilot/emailToCalendar/pkg/email/external"	
-	"github.com/bitterpilot/emailToCalendar/pkg/email/external/gmail"
+	"github.com/bitterpilot/emailToCalendar/pkg/email/interfaces/gmail"
+	"github.com/bitterpilot/emailToCalendar/pkg/email/interfaces/store"
 )
 
 func main() {
@@ -32,10 +32,10 @@ func main() {
 	fmt.Println(x)
 
 	dbHandler := db.NewSqliteHandler(viper.GetString(`db`))
-	handlers := make(map[string]external.DbHandler)
+	handlers := make(map[string]store.DbHandler)
 	handlers["DbEmailRepo"] = dbHandler
 
-	newE := external.NewDbEmailRepo(handlers)
+	newE := store.NewDbEmailRepo(handlers)
 
 	nm := newE.FindByExternalThreadID("167b9fa15f6230de")
 	for _, val := range nm {
