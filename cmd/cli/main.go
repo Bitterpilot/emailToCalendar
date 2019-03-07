@@ -6,6 +6,7 @@ import (
 	"github.com/spf13/viper"
 
 	"github.com/bitterpilot/emailToCalendar/pkg/email/db"
+	"github.com/bitterpilot/emailToCalendar/pkg/email/external"	
 	"github.com/bitterpilot/emailToCalendar/pkg/email/external/gmail"
 )
 
@@ -22,10 +23,10 @@ func main() {
 	label := viper.GetString(`gmailFilter.label`)
 
 	g := gmail.NewGmailSrv(user)
-	listEmails := g.ListEmails(user, query, label)
+	listEmails := g.ListEmails(query, label)
 
 	msg := listEmails[len(listEmails)-1]
-	msg.Body = g.GetEmail(user, msg).Body
+	msg.Body = g.GetEmail(msg).Body
 
 	x, _ := msg.ReadDate()
 	fmt.Println(x)
