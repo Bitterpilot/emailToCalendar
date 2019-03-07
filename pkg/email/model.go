@@ -12,6 +12,7 @@ type Msg struct {
 type External interface {
 	ListEmails(query, label string) []*Msg
 	GetEmail(msg *Msg) *Msg
+	Watch(labelIds []string)
 }
 
 type Store interface {
