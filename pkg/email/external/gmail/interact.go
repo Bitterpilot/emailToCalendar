@@ -67,8 +67,8 @@ func getbody(getMsg *gmail.Message) (string, error) {
 	return "", errors.New("")
 }
 
-func (srv *gmailSrv) GetEmail(msg *email.Msg) *email.Msg {
-	getMsg, err := srv.User.Messages.Get(srv.Username, msg.ExternalID).Do()
+func (gmail *gmailSrv) GetEmail(msg *email.Msg) *email.Msg {
+	getMsg, err := gmail.User.Messages.Get(gmail.Username, msg.ExternalID).Do()
 	if err != nil {
 		log.Printf("Could not retrieve email: %v", err)
 	}
