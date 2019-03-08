@@ -9,6 +9,12 @@ type Msg struct {
 	Body         string
 }
 
+type User struct {
+	Name    string
+	Query   string
+	LabelID string
+}
+
 type External interface {
 	ListEmails(query, label string) []*Msg
 	GetEmail(msg *Msg) *Msg

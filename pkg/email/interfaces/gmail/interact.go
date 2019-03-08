@@ -1,6 +1,7 @@
 package gmail
 
 import (
+	"database/sql"
 	"errors"
 	"fmt"
 	"log"
@@ -9,8 +10,22 @@ import (
 	"google.golang.org/api/gmail/v1"
 )
 
-func (gmail *gmailSrv) ListEmails(query, label string) []*email.Msg {
-	listMsg, err := gmail.User.Messages.List(gmail.Username).LabelIds(label).Q(query).Do()
+type GmailHandlers struct {
+	gml  *gmail.Service
+	user *email.User
+
+	logger *log.Logger
+	db     *sql.DB
+}
+
+func NewGmailHandler(user *email.User, nlog *log.Logger, db *sql.DB) *GmailHandlers {
+	srv := NewGmailSrv(user.Name, nlog)
+
+	return &GmailHandlers{gml: srv, user: user, logger: nlog, db: db}
+}
+
+func (h *GmailHandlers) ListEmails() []*email.Msg {
+	listMsg, err := h.gml.Users.Messages.List(h.user.Name).LabelIds(h.user.LabelID).Q(h.user.Query).Do()
 	if err != nil {
 		log.Printf("Could not list emails: %v", err)
 	}
@@ -28,7 +43,7 @@ func (gmail *gmailSrv) ListEmails(query, label string) []*email.Msg {
 	return emails
 }
 
-func getbody(getMsg *gmail.Message) (string, error) {
+func (h *GmailHandlers) getbody(getMsg *gmail.Message) (string, error) {
 	// Check Mime types
 	// start by setting a high part number so if a part of the desired mime
 	// type is not found we can fail gracefully.
@@ -42,7 +57,7 @@ func getbody(getMsg *gmail.Message) (string, error) {
 		}
 	}
 	if partNum == 9999 {
-		log.Fatalf(
+		h.logger.Fatalf(
 			`Error: gmail.go/GetMessage text/html Mime Type not found in msgID: %s`,
 			getMsg.Id)
 	}
@@ -67,14 +82,17 @@ func getbody(getMsg *gmail.Message) (string, error) {
 	return "", errors.New("")
 }
 
-func (gmail *gmailSrv) GetEmail(msg *email.Msg) *email.Msg {
-	getMsg, err := gmail.User.Messages.Get(gmail.Username, msg.ExternalID).Do()
+func (h *GmailHandlers) GetEmail(msg *email.Msg) *email.Msg {
+	getMsg, err := h.gml.Users.Messages.Get(h.user.Name, msg.ExternalID).Do()
 	if err != nil {
-		log.Printf("Could not retrieve email: %v", err)
+		h.logger.Printf("Could not retrieve email: %v", err)
 	}
 
 	// body
-	msg.Body, err = getbody(getMsg)
+	msg.Body, err = h.getbody(getMsg)
+	if err != nil {
+		h.logger.Println(err)
+	}
 	// convert gmail.message struct to email.Msg
 	msg.ReceivedTime = getMsg.InternalDate
 	return msg

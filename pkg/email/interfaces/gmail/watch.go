@@ -6,7 +6,7 @@ import (
 	"google.golang.org/api/gmail/v1"
 )
 
-func (srv *gmailSrv) Watch(labelIds []string) {
+func (h *GmailHandlers) Watch(labelIds []string) {
 	if len(labelIds) == 0 {
 		labelIds[0] = "inbox"
 	}
@@ -18,7 +18,7 @@ func (srv *gmailSrv) Watch(labelIds []string) {
 		ForceSendFields:   nil,
 		NullFields:        nil,
 	}
-	rsp, err := srv.User.Watch(srv.Username, req).Do()
+	rsp, err := h.gml.Users.Watch(h.user.Name, req).Do()
 	if err != nil {
 		fmt.Println(err)
 	}

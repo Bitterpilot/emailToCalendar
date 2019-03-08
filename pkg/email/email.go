@@ -15,7 +15,7 @@ import (
 func (msg *Msg) ReadDate() (map[string]time.Time, error) {
 	decoded, err := base64.StdEncoding.DecodeString(msg.Body)
 	if err != nil {
-		fmt.Println(err)
+		return nil, err
 	}
 	sDecode := string(decoded)
 	re := regexp.MustCompile(`([\d]{1,2} [\w]{3} [\d]{4})`)
@@ -32,7 +32,7 @@ func (msg *Msg) ReadDate() (map[string]time.Time, error) {
 		layout := "2 Jan 2006"
 		ti, err := time.ParseInLocation(layout, val, loc)
 		if err != nil {
-			fmt.Println(err)
+			return nil, err
 		}
 		switch {
 		case i == 0:

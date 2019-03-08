@@ -12,38 +12,28 @@ import (
 	"golang.org/x/oauth2"
 	"golang.org/x/oauth2/google"
 	"google.golang.org/api/gmail/v1"
-
-	"github.com/bitterpilot/emailToCalendar/pkg/email"
 )
 
-type gmailSrv struct {
-	User     *gmail.UsersService
-	Username string
-}
-
 // NewGmailSrv ...
-func NewGmailSrv(user string) email.External {
+func NewGmailSrv(user string, nlog *log.Logger) *gmail.Service {
 	b, err := ioutil.ReadFile("credentials.json")
 	if err != nil {
-		log.Fatalf("Unable to read client secret file: %v", err)
+		nlog.Fatalf("Unable to read client secret file: %v", err)
 	}
 
 	// If modifying these scopes, delete your previously saved token.json.
 	config, err := google.ConfigFromJSON(b, gmail.GmailReadonlyScope)
 	if err != nil {
-		log.Fatalf("Unable to parse client secret file to config: %v", err)
+		nlog.Fatalf("Unable to parse client secret file to config: %v", err)
 	}
 	client := getClient(config, user)
 
 	srv, err := gmail.New(client)
 	if err != nil {
-		log.Fatalf("Unable to retrieve Gmail client: %v", err)
+		nlog.Fatalf("Unable to retrieve Gmail client: %v", err)
 	}
 
-	return &gmailSrv{
-		User:     srv.Users,
-		Username: user,
-	}
+	return srv
 }
 
 // Retrieve a token, saves the token, then returns the generated client.
