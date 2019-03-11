@@ -1,4 +1,4 @@
-package gmail
+package providers
 
 import (
 	"encoding/json"
@@ -15,22 +15,22 @@ import (
 )
 
 // NewGmailSrv ...
-func NewGmailSrv(user string, nlog *log.Logger) *gmail.Service {
+func NewGmailSrv(user string) *gmail.Service {
 	b, err := ioutil.ReadFile("credentials.json")
 	if err != nil {
-		nlog.Fatalf("Unable to read client secret file: %v", err)
+		log.Fatalf("Unable to read client secret file: %v", err)
 	}
 
 	// If modifying these scopes, delete your previously saved token.json.
 	config, err := google.ConfigFromJSON(b, gmail.GmailReadonlyScope)
 	if err != nil {
-		nlog.Fatalf("Unable to parse client secret file to config: %v", err)
+		log.Fatalf("Unable to parse client secret file to config: %v", err)
 	}
 	client := getClient(config, user)
 
 	srv, err := gmail.New(client)
 	if err != nil {
-		nlog.Fatalf("Unable to retrieve Gmail client: %v", err)
+		log.Fatalf("Unable to retrieve Gmail client: %v", err)
 	}
 
 	return srv
