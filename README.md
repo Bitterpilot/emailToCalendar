@@ -20,38 +20,58 @@ Restructure code to a clean code architecture
 ```go
 .  
 ├── cmd
-│   ├── cli  // full cli version of the app(expects user interaction)
+│   ├── cli  // full cli version of the app(expects user interaction) calls app.Run()
 │   └── faas // functions as a service version(expects events (i.e. mail received, timed event) to trigger
 │            // function)
 ├── pkg  
 │   ├── email // gets emails
 │   │   │     // expects: User && (MsgID || ThdID || Watch Response)
-│   │   │     // returns: email body, MsgID, ThdID, time received
+│   │   │     // returns: err && (email body || MsgID || ThdID || time received)
 │   │   │     // methods:
 │   │   │           // NewService calls a provider specific function to open a new authentication session.
 │   │   │           // Although tempting to have the authentication tokens combine permissions for email 
 │   │   │           // and calendar, the email NewService is distinct from the calendar one to avoid the 
 │   │   │           // two packages from being tightly coupled.
 │   │   │           // It also has the benefit of avoiding complexity if the user wants to map between providers.
-│   │   │           NewService(user, provider) (svc, err) 
-│   │   │
-│   │   │           (*NewService) Push(bool) (pushRsp, err){if true{watch} if false{stop}}
-│   │   │           (*NewService) HandlePush(pushRsp) (historyID, err)
-│   │   │           (*NewService) ListRecentEmails(historyID)
-│   │   │           (*NewService) ListAllEmails()
-│   │   │           (*NewService) GetEmail(MsgID)
-│   │   │           (*NewService) GetEmails(ThdID || []MsgID)
-│   │   ├──  
-│   │   └──  
+│   │   │           type ServiceHandler struct {
+│   │   │               providerService interface
+│   │   │               logger *log.logger
+│   │   │               user string
+│   │   │           }
+│   │   │           NewService(user, provider) (svc, err) {
+│   │   │               switch {
+│   │   │                  case provider: provider methods 
+│   │   │                  default: errors.New("must have provider")
+│   │   │               }
+│   │   │           }
+│   │   │           
+│   │   │           type provider interface {
+│   │   │               (*NewService) Push(bool) (pushRsp, err){if true{watch} if false{stop}}
+│   │   │               (*NewService) HandlePush(pushRsp) (historyID, err)
+│   │   │               (*NewService) ListRecentEmails(historyID)
+│   │   │               (*NewService) ListAllEmails()
+│   │   │               (*NewService) GetEmail(MsgID)
+│   │   │               (*NewService) GetEmails(ThdID || []MsgID)
+│   │   │           }
+│   │   ├──  email.go  // implements newService() and provider interface
+│   │   └──  providers
+│   │        ├──  google.go     // implements the functions listed in provider interface for Gmail
+│   │        └──  microsoft.go // implements the functions listed in provider interface for Microsoft
+│   │
 │   ├── calendar // gets, removes and publishes events
-│   │   │        // expects: User && Event
-│   │   │        // returns: Err
+│   │   │        // expects: User && (Event || eventIds)
+│   │   │        // returns: Err && (eventIDs || Events)
 │   │   │        // methods:
 │   │   │           // NewService calls a provider specific function to open a new authentication session.
 │   │   │           // Although tempting to have the authentication tokens combine permissions for calendar 
 │   │   │           // and email, the calendar NewService is distinct from the email one to avoid the 
 │   │   │           // two packages from being tightly coupled.
 │   │   │           // It also has the benefit of avoiding complexity if the user wants to map between providers.
+│   │   │           type ServiceHandler struct {
+│   │   │               providerService interface
+│   │   │               logger *log.logger
+│   │   │               
+│   │   │           }
 │   │   │           NewService(user, provider) (svc, err) 
 │   │   │                
 │   │   │           (*NewService) GetEvents(startDate, endDate) ([]event, err)
@@ -61,12 +81,57 @@ Restructure code to a clean code architecture
 │   │   │           (*NewService) RemoveEvents([]eventIDs) err
 │   │   │           (*NewService) PublishEvent(event) err
 │   │   │           (*NewService) PublishEvents([]event) err
-│   │   ├──  
-│   │   └──  
-│   ├── builder // builds events from email body and checks for existing events
-│   │   │       // expects: User && Event
-│   │   │       // returns: Err
-│   │   │       // methods: 
+│   │   │           (*NewService) ChangeEvent([]event) err
+│   │   ├──  calendar.go  // implements newService() and provider interface
+│   │   └──  providers
+│   │        ├──  google.go    // implements the functions listed in provider interface for Google
+│   │        └──  microsoft.go // implements the functions listed in provider interface for Microsoft
+│   │
+│   └── app // builds events from email body and checks for existing events
+│       │       // expects: User && (shift || email)
+│       │       // returns: Err && (event)
+│       │       // methods: 
+│       │           type email struct {
+│       │               IntId    int    // Internal Storage ID
+│       │               ExtID    string // ID from the service provider
+│       │               ExtThdID string // ID linking emails together from the service provider
+│       │               Body     string // base64 encoded
+│       │           }
+│       │           type shift struct {
+│       │               IntId      int    // Internal Storage ID
+│       │               ExtEventID string // ID from the service provider
+│       │               ExtMsgID   string // ID linking emails together from the service provider
+│       │               Comment    string // base64 encoded
+│       │               URL        string // direct link to source email
+│       │           
+│       │           }
+│       │           type handler struct {
+│       │               logger *log.logger
+│       │           }
+│       │           NewHandler() handler
+│       │           RunCli() // function handles all the code to run the cli version expects parameters handed
+│       │                    // at runtime
+│       │           (*handler) ProcessEmail(MsgID) (*email)
+│       │           (*handler) dateRange(body)
+│       │           (*handler) checkEncoding(body)
+│       │           (*handler) processTable(body) [][]string
+│       │           (*handler) tagReader
+│       │           (*handler) convertTableLineToShift([]string) shift
+│       │           (*handler) convertShiftToEvent(shift) event
+│       │           (*handler) compareEvent(event, event) (bool, diff)
+│       │           (*handler) convertDates(string) time
+│       │           (*handler) 
+│       ├── app.go   // designed in a way that it will be easy to break up into individual files such as email.go
+│       └── run.go   // contains method that are called from main.go
+│
+├── vendor
+│   └── ... 
+├── README.md
+├── .gitignore
+├── dockerfile
+├── go.mod
+├── continues.integration
+└── 
 
 ```
 ### v0.6
