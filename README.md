@@ -34,9 +34,10 @@ Restructure code to a clean code architecture
 │   │   │           // two packages from being tightly coupled.
 │   │   │           // It also has the benefit of avoiding complexity if the user wants to map between providers.
 │   │   │           type ServiceHandler struct {
+│   │   │               user string
 │   │   │               providerService interface
 │   │   │               logger *log.logger
-│   │   │               user string
+│   │   │               db *sql.db
 │   │   │           }
 │   │   │           NewService(user, provider) (svc, err) {
 │   │   │               switch {
@@ -50,8 +51,8 @@ Restructure code to a clean code architecture
 │   │   │               (*NewService) HandlePush(pushRsp) (historyID, err)
 │   │   │               (*NewService) ListRecentEmails(historyID)
 │   │   │               (*NewService) ListAllEmails()
-│   │   │               (*NewService) GetEmail(MsgID)
-│   │   │               (*NewService) GetEmails(ThdID || []MsgID)
+│   │   │               (*NewService) GetEmail(MsgID) *email
+│   │   │               (*NewService) GetEmails(ThdID || []MsgID) *[]email
 │   │   │           }
 │   │   ├──  email.go  // implements newService() and provider interface
 │   │   └──  providers
@@ -68,9 +69,9 @@ Restructure code to a clean code architecture
 │   │   │           // two packages from being tightly coupled.
 │   │   │           // It also has the benefit of avoiding complexity if the user wants to map between providers.
 │   │   │           type ServiceHandler struct {
+│   │   │               user string
 │   │   │               providerService interface
 │   │   │               logger *log.logger
-│   │   │               
 │   │   │           }
 │   │   │           NewService(user, provider) (svc, err) 
 │   │   │                
@@ -107,8 +108,9 @@ Restructure code to a clean code architecture
 │       │           }
 │       │           type handler struct {
 │       │               logger *log.logger
+│       │               db     *sql.db
 │       │           }
-│       │           NewHandler() handler
+│       │           NewHandler(logger, db) handler
 │       │           RunCli() // function handles all the code to run the cli version expects parameters handed
 │       │                    // at runtime
 │       │           (*handler) ProcessEmail(MsgID) (*email)
@@ -121,6 +123,8 @@ Restructure code to a clean code architecture
 │       │           (*handler) compareEvent(event, event) (bool, diff)
 │       │           (*handler) convertDates(string) time
 │       │           (*handler) 
+│       ├── store
+│       │   └── db
 │       ├── app.go   // designed in a way that it will be easy to break up into individual files such as email.go
 │       └── run.go   // contains method that are called from main.go
 │
@@ -131,7 +135,7 @@ Restructure code to a clean code architecture
 ├── dockerfile
 ├── go.mod
 ├── continues.integration
-└── 
+└── ...
 
 ```
 ### v0.6

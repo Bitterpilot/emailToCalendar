@@ -3,13 +3,14 @@ package email
 import (
 	"google.golang.org/api/gmail/v1"
 	"log"
+
 	"github.com/bitterpilot/emailToCalendar/pkg/email/providers"
 )
 
 type ServiceHandler struct {
-	user    string
-	Service interface{}
-	logger  *log.Logger
+	User   string
+	Srv    *gmail.Service
+	Logger *log.Logger
 }
 
 func NewService(user, provider string, logger *log.Logger) (*ServiceHandler, error) {
@@ -21,15 +22,16 @@ func NewService(user, provider string, logger *log.Logger) (*ServiceHandler, err
 		}
 
 		sh := &ServiceHandler{
-			user:    user,
-			Service: s,
-			logger:  logger,
+			User:   user,
+			Srv:    s,
+			Logger: logger,
 		}
-		return s, nil
+		return sh, nil
 	}
+	return nil, nil
 }
 
-func gmailHandler(user string) (*gmail.Service, error) {
-	s := providers.NewGmailSrv(user)
-    return s,nil
+func gmailHandler(u string) (*gmail.Service, error) {
+	s := providers.NewGmailSrv(u)
+	return s, nil
 }
