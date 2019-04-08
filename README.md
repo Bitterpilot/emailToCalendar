@@ -1,4 +1,5 @@
 # Gmail to gCal
+[![Go Report Card](https://goreportcard.com/badge/github.com/bitterpilot/emailToCalendar)](https://goreportcard.com/report/github.com/bitterpilot/emailToCalendar)  
 Take a email of shifts from riteq and put them into google calandar
 
 ### Sample
