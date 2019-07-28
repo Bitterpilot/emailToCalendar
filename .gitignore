@@ -43,3 +43,4 @@ casesTest/*
 */token.json
 exampleFullOutput.json
 *.db
+config.yaml
