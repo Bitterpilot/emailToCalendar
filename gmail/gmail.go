@@ -25,7 +25,7 @@ func getClient(config *oauth2.Config) *http.Client {
 	// The file token.json stores the user's access and refresh tokens, and is
 	// created automatically when the authorization flow completes for the first
 	// time.
-	tokFile := "token.json"
+	tokFile := "gmail/token.json"
 	tok, err := tokenFromFile(tokFile)
 	if err != nil {
 		tok = getTokenFromWeb(config)
@@ -85,7 +85,7 @@ func saveToken(path string, token *oauth2.Token) {
 }
 
 func newService() *gmail.Service {
-	b, err := ioutil.ReadFile("credentials.json")
+	b, err := ioutil.ReadFile("gmail/credentials.json")
 	if err != nil {
 		// FIXME: Make sure a fatal is approraiate
 		// 		  fatal will exit to OS
