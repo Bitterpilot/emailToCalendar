@@ -12,6 +12,8 @@ import (
 	"golang.org/x/net/html"
 
 	"github.com/jhillyerd/enmime"
+	log "github.com/sirupsen/logrus"
+	"github.com/spf13/viper"
 
 	cal "github.com/bitterpilot/emailToCalendar/pkg/calendar"
 	db "github.com/bitterpilot/emailToCalendar/pkg/db"
@@ -109,10 +111,8 @@ func processTable(eml string) []processor.RowContents {
 }
 
 func publishShifts(shifts []processor.Shift) {
-	fmt.Print("Enter select Calendar: ")
-	calendarID, _ := reader.ReadString('\n')
-	calendarID = strings.TrimSuffix(calendarID, "\n")
-	// Start of calendar stuff
+	calendarID := viper.GetString("calendarID")
+	// Start of calandar stuff
 	for _, shift := range shifts {
 		msgID := shift.MsgID
 		summary := shift.Summary
@@ -136,21 +136,26 @@ func publishShifts(shifts []processor.Shift) {
 var reader *bufio.Reader
 
 func main() {
-	reader = bufio.NewReader(os.Stdin)
+	viper.SetConfigName("config")
+	viper.AddConfigPath(".")
 	user := "me"
-	// Prompt user for info
-	fmt.Print("Enter label: ")
-	label, _ := reader.ReadString('\n')
-	label = strings.TrimSuffix(label, "\n")
-	fmt.Print("Enter senders email: ")
-	email, _ := reader.ReadString('\n')
-	email = strings.TrimSuffix(email, "\n")
-	fmt.Print("Enter subject: ")
-	subject, _ := reader.ReadString('\n')
-	subject = strings.TrimSuffix(subject, "\n")
+	// load user info
+	if err := viper.ReadInConfig(); err != nil {
+		if _, ok := err.(viper.ConfigFileNotFoundError); ok {
+			// Config file not found; ignore error if desired
+			log.Fatalf("Config file not found: %v", err)
+		} else {
+			// Config file was found but another error was produced
+			log.Fatalf("Config file was found with error: %v", err)
+		}
+	}
+
+	label := viper.GetString("label")
+	sender := viper.GetString("sender")
+	subject := viper.GetString("subject")
 
 	// use this to look for new messages
-	listMessages := g.ListMessages(label, email, subject)
+	listMessages := g.ListMessages(label, sender, subject)
 	for _, val := range listMessages {
 		if val.Id != db.ListByMsgID(val.Id) {
 			_, date, _ := g.GetMessage(user, val.Id)

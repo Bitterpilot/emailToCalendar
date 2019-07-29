@@ -45,3 +45,4 @@ config.json
 exampleFullOutput.json
 *.db
 *.sqlite
+config.yaml
