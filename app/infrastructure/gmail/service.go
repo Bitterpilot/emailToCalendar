@@ -81,6 +81,7 @@ func saveToken(path string, token *oauth2.Token) {
 	json.NewEncoder(f).Encode(token)
 }
 
+// NewService
 func NewService() *gmail.Service {
 	b, err := ioutil.ReadFile("../../config/gmail/credentials.json")
 	if err != nil {

@@ -38,6 +38,7 @@ func (p Provider) List(labelIDs, sender, subject string) []models.Email {
 	return ret
 }
 
+// Get
 func (p Provider) Get(e models.Email) models.Email {
 	InternalDate, emailBody := gmailgetter.GetMessage(user, e.MsgID)
 	e.TimeReceived = InternalDate
