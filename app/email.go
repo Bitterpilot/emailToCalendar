@@ -1,7 +1,7 @@
 package app
 
 import (
-	"log"
+	log "github.com/sirupsen/logrus"
 
 	"github.com/bitterpilot/emailToCalendar/models"
 )
@@ -11,12 +11,13 @@ import (
 // EmailGetter are functions a email provider( Gmail, Outlook ) package will implement.
 type EmailGetter interface {
 	List(labelIDs, sender, subject string) []models.Email
+	Get(models.Email) models.Email
 }
 
 // EmailStore are functions a database package will implement.
 type EmailStore interface {
 	ListByMsgID(msgID string) (string, error)
-	// InsertEmail(labelIDs, sender, subject string)
+	InsertEmail(models.Email) (int, error)
 }
 
 // EmailRegistar contains dependencies for this package. Such as an email provider, database and logger.
@@ -37,23 +38,35 @@ func NewEmailRegistar(e EmailGetter, db EmailStore) *EmailRegistar {
 // Application logic
 
 // Unprocessed checks
-func (eR EmailRegistar) Unprocessed(labelIDs, sender, subject string) error {
+func (eR EmailRegistar) Unprocessed(labelIDs, sender, subject string) ([]models.Email, error) {
+	// List all emails
 	list := eR.emailGetter.List(labelIDs, sender, subject)
-
+	var unprocessed []models.Email
+	// compare emails to db records
 	for _, email := range list {
+		// Look for email in DB.
 		dbRecord, err := eR.emailStore.ListByMsgID(email.MsgID)
 		if err != nil {
-			return err
+			return nil, err
 		}
+		// If not in db then get time recieved and body, insert to db,
 		if email.MsgID != dbRecord {
-			log.Println(email.MsgID)
-			// eR.emailStore.InsertEmail(email.MsgID, email.ThdID, email.TimeReceived.String())
+			log.WithFields(log.Fields{"EmailID": email.MsgID}).Info("Get message and insert into db.")
+			// Get body and time recieved
+			email.TimeReceived = -1
+			email.Body = "Here it is"
+			// Store and get ID
+			email.ID, err = eR.emailStore.InsertEmail(email)
+			if err != nil {
+				return nil, err
+			}
+
+			unprocessed = append(unprocessed, email)
 		}
 	}
-	return nil
+	return unprocessed, nil
 }
 
-// id
 // msg
 // body
 // table

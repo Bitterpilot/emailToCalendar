@@ -2,19 +2,26 @@ package infrastructure
 
 import (
 	"database/sql"
+
+	log "github.com/sirupsen/logrus"
+
+	"github.com/bitterpilot/emailToCalendar/models"
 )
 
 // Store ...
+// TODO: Write a real comment
 type Store struct {
 	db *sql.DB
 }
 
 // NewDB ...
+// TODO: Write a real comment
 func NewDB(db *sql.DB) *Store {
 	return &Store{db: db}
 }
 
 // ListByMsgID ...
+// TODO: Write a real comment
 func (s Store) ListByMsgID(msgID string) (string, error) {
 	tx, err := s.db.Begin()
 	if err != nil {
@@ -38,4 +45,32 @@ func (s Store) ListByMsgID(msgID string) (string, error) {
 		}
 	}
 	return msgList, nil
+}
+
+// InsertEmail ...
+// TODO: Write a real comment
+func (s Store) InsertEmail(e models.Email) (int, error) {
+	tx, err := s.db.Begin()
+	if err != nil {
+		return -1, err
+	}
+	defer tx.Commit()
+
+	stmt, err := tx.Prepare("INSERT INTO emails(msgID, thdID, timeRecieved) values(?,?,?)")
+	if err != nil {
+		return -1, err
+	}
+
+	res, err := stmt.Exec(e.MsgID, e.ThdID, e.TimeReceived)
+	if err != nil {
+		return -1, err
+	}
+
+	id, err := res.LastInsertId()
+	if err != nil {
+		return -1, err
+	}
+
+	log.WithFields(log.Fields{"Database ID": id}).Info("Inserted to DB.")
+	return int(id), nil
 }

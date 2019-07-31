@@ -2,10 +2,11 @@ package main
 
 import (
 	"database/sql"
-	"log"
+	"fmt"
 
 	"github.com/bitterpilot/emailToCalendar/app"
 	"github.com/bitterpilot/emailToCalendar/app/infrastructure"
+	log "github.com/sirupsen/logrus"
 	"github.com/spf13/viper"
 
 	_ "github.com/mattn/go-sqlite3"
@@ -45,5 +46,12 @@ func main() {
 
 	// Parse the objects into the main logic flow
 	reg := app.NewEmailRegistar(emailGetter, emailStore)
-	reg.Unprocessed(label, sender, subject)
+	unproccesed, err := reg.Unprocessed(label, sender, subject)
+	if err != nil {
+		log.Warnf("Unprocessed: %v", err)
+	}
+
+	for _, item := range unproccesed {
+		fmt.Printf("%+v\n", item)
+	}
 }

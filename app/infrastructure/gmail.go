@@ -9,6 +9,7 @@ import (
 )
 
 // Provider ...
+// TODO: Write a real comment
 type Provider struct {
 	service *gmail.Service
 	// user    string
@@ -17,6 +18,7 @@ type Provider struct {
 var user string
 
 // NewGmailProvider ...
+// TODO: Write a real comment
 func NewGmailProvider(u string) *Provider {
 	s := gmailgetter.NewService()
 	user = u
@@ -27,15 +29,14 @@ func NewGmailProvider(u string) *Provider {
 }
 
 // List ...
+// TODO: Write a real comment
 func (p Provider) List(labelIDs, sender, subject string) []models.Email {
-	fmt.Println("The list")
 	list := gmailgetter.ListMessages(user, labelIDs, sender, subject)
 	var ret []models.Email
 	for _, gmsg := range list {
 		msg := models.Email{
 			MsgID:        gmsg.Id,
 			ThdID:        gmsg.ThreadId,
-			TimeReceived: gmsg.InternalDate,
 		}
 		ret = append(ret, msg)
 	}
