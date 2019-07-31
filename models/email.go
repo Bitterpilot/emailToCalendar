@@ -6,5 +6,5 @@ type Email struct {
 	MsgID        string
 	ThdID        string // ThreadID(gmail) or conversationID(outlook) are related messages
 	TimeReceived int64
-	Body         string
+	Body         []byte
 }

@@ -35,10 +35,18 @@ func (p Provider) List(labelIDs, sender, subject string) []models.Email {
 	var ret []models.Email
 	for _, gmsg := range list {
 		msg := models.Email{
-			MsgID:        gmsg.Id,
-			ThdID:        gmsg.ThreadId,
+			MsgID: gmsg.Id,
+			ThdID: gmsg.ThreadId,
 		}
 		ret = append(ret, msg)
 	}
 	return ret
+}
+
+func (p Provider) Get(e models.Email) models.Email {
+	InternalDate, emailBody := gmailgetter.GetMessage(user, e.MsgID)
+	e.TimeReceived = InternalDate
+	e.Body = emailBody
+
+	return e
 }

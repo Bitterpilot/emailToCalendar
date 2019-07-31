@@ -9,7 +9,7 @@ import (
 )
 
 // GetMessage ...
-func GetMessage(user, msgID string) (string, int64, []byte) {
+func GetMessage(user, msgID string) (int64, []byte) {
 	msg, err := srv.Users.Messages.Get(user, msgID).Format("full").Do()
 	if err != nil {
 		// FIXME: Make sure a fatal is appropriate
@@ -58,7 +58,7 @@ func GetMessage(user, msgID string) (string, int64, []byte) {
 		log.Fatalf("Unable to decode email: %v", err)
 	}
 
-	return msg.ThreadId, msg.InternalDate, emailBody
+	return msg.InternalDate, emailBody
 }
 
 // ListMessages ...
