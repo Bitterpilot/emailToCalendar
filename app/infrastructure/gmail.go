@@ -1,15 +1,12 @@
 package infrastructure
 
 import (
-	"fmt"
-
 	gmailgetter "github.com/bitterpilot/emailToCalendar/app/infrastructure/gmail"
 	"github.com/bitterpilot/emailToCalendar/models"
 	"google.golang.org/api/gmail/v1"
 )
 
-// Provider ...
-// TODO: Write a real comment
+// Provider
 type Provider struct {
 	service *gmail.Service
 	// user    string
@@ -17,8 +14,7 @@ type Provider struct {
 
 var user string
 
-// NewGmailProvider ...
-// TODO: Write a real comment
+// NewGmailProvider
 func NewGmailProvider(u string) *Provider {
 	s := gmailgetter.NewService()
 	user = u
@@ -28,8 +24,7 @@ func NewGmailProvider(u string) *Provider {
 	}
 }
 
-// List ...
-// TODO: Write a real comment
+// List
 func (p Provider) List(labelIDs, sender, subject string) []models.Email {
 	list := gmailgetter.ListMessages(user, labelIDs, sender, subject)
 	var ret []models.Email

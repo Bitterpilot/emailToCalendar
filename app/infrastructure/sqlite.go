@@ -8,20 +8,17 @@ import (
 	"github.com/bitterpilot/emailToCalendar/models"
 )
 
-// Store ...
-// TODO: Write a real comment
+// Store
 type Store struct {
 	db *sql.DB
 }
 
-// NewDB ...
-// TODO: Write a real comment
+// NewDB
 func NewDB(db *sql.DB) *Store {
 	return &Store{db: db}
 }
 
-// ListByMsgID ...
-// TODO: Write a real comment
+// ListByMsgID
 func (s Store) ListByMsgID(msgID string) (string, error) {
 	tx, err := s.db.Begin()
 	if err != nil {
@@ -47,8 +44,7 @@ func (s Store) ListByMsgID(msgID string) (string, error) {
 	return msgList, nil
 }
 
-// InsertEmail ...
-// TODO: Write a real comment
+// InsertEmail
 func (s Store) InsertEmail(e models.Email) (int, error) {
 	tx, err := s.db.Begin()
 	if err != nil {

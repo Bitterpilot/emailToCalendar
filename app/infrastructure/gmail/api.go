@@ -8,7 +8,7 @@ import (
 	"google.golang.org/api/gmail/v1"
 )
 
-// GetMessage ...
+// GetMessage
 func GetMessage(user, msgID string) (int64, []byte) {
 	msg, err := srv.Users.Messages.Get(user, msgID).Format("full").Do()
 	if err != nil {
@@ -61,7 +61,7 @@ func GetMessage(user, msgID string) (int64, []byte) {
 	return msg.InternalDate, emailBody
 }
 
-// ListMessages ...
+// ListMessages
 func ListMessages(user, labelIDs, sender, subject string) []*gmail.Message {
 	msgList, err := srv.Users.Messages.List(user).LabelIds(labelIDs).Q(fmt.Sprintf("from:%s subject:%s", sender, subject)).Do()
 	if err != nil {
