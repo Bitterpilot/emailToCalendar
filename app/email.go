@@ -16,7 +16,7 @@ type EmailGetter interface {
 
 // EmailStore are functions a database package will implement.
 type EmailStore interface {
-	ListByMsgID(msgID string) (string, error)
+	FindByMsgID(msgID string) (string, error)
 	InsertEmail(models.Email) (int, error)
 }
 
@@ -37,7 +37,8 @@ func NewEmailRegistar(e EmailGetter, db EmailStore) *EmailRegistar {
 
 // Application logic
 
-// Unprocessed checks
+// Unprocessed checks all messages in a users inbox against Database records looking for emails marked as unprocessed.
+// It returns a models.Email with all fields.
 func (eR EmailRegistar) Unprocessed(labelIDs, sender, subject string) ([]models.Email, error) {
 	// List all emails
 	list := eR.emailGetter.List(labelIDs, sender, subject)
@@ -45,14 +46,14 @@ func (eR EmailRegistar) Unprocessed(labelIDs, sender, subject string) ([]models.
 	// compare emails to db records
 	for _, email := range list {
 		// Look for email in DB.
-		dbRecord, err := eR.emailStore.ListByMsgID(email.MsgID)
+		dbRecord, err := eR.emailStore.FindByMsgID(email.MsgID)
 		if err != nil {
 			return nil, err
 		}
-		// If not in db then get time recieved and body, insert to db,
+		// If not in db then get time received and body, insert to db,
 		if email.MsgID != dbRecord {
 			log.WithFields(log.Fields{"EmailID": email.MsgID}).Info("Get message and insert into db.")
-			// Get body and time recieved
+			// Get body and time received
 			email = eR.emailGetter.Get(email)
 			email.ID, err = eR.emailStore.InsertEmail(email)
 			if err != nil {
@@ -65,6 +66,5 @@ func (eR EmailRegistar) Unprocessed(labelIDs, sender, subject string) ([]models.
 	return unprocessed, nil
 }
 
-// msg
 // body
 // table

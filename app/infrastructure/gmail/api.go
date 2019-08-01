@@ -3,12 +3,13 @@ package gmailgetter
 import (
 	"encoding/base64"
 	"fmt"
-	"log"
+
+	log "github.com/sirupsen/logrus"
 
 	"google.golang.org/api/gmail/v1"
 )
 
-// GetMessage
+// GetMessage returns the internal date and body from the Gmail API.
 func GetMessage(user, msgID string) (int64, []byte) {
 	msg, err := srv.Users.Messages.Get(user, msgID).Format("full").Do()
 	if err != nil {
@@ -61,7 +62,10 @@ func GetMessage(user, msgID string) (int64, []byte) {
 	return msg.InternalDate, emailBody
 }
 
-// ListMessages
+// ListMessages returns a list of messages with basic info from the Gmail API.
+// It only returns the messages with a declared label, sender and subject.
+// 
+// Returned values are Gmail Message ID and Thread ID.
 func ListMessages(user, labelIDs, sender, subject string) []*gmail.Message {
 	msgList, err := srv.Users.Messages.List(user).LabelIds(labelIDs).Q(fmt.Sprintf("from:%s subject:%s", sender, subject)).Do()
 	if err != nil {

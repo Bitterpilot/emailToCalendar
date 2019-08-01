@@ -7,22 +7,22 @@ import (
 	"github.com/bitterpilot/emailToCalendar/models"
 )
 
-// Store
+// Store holds a database.
 type Store struct {
 	db *sql.DB
 }
 
-// NewDB
+// NewDB creates a database.
 func NewDB(db *sql.DB) *Store {
 	return &Store{db: db}
 }
 
-// ListByMsgID
-func (s Store) ListByMsgID(msgID string) (string, error) {
+// FindByMsgID searches for records by Message ID.
+func (s Store) FindByMsgID(msgID string) (string, error) {
 	return sqlite.SelectByMsgID(msgID, s.db)
 }
 
-// InsertEmail
+// InsertEmail into database and returns it's row ID.
 func (s Store) InsertEmail(e models.Email) (int, error) {
 	return sqlite.Insert(e, s.db)
 }

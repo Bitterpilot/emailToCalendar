@@ -4,9 +4,10 @@ import (
 	"encoding/json"
 	"fmt"
 	"io/ioutil"
-	"log"
 	"net/http"
 	"os"
+
+	log "github.com/sirupsen/logrus"
 
 	"golang.org/x/net/context"
 	"golang.org/x/oauth2"
@@ -81,7 +82,7 @@ func saveToken(path string, token *oauth2.Token) {
 	json.NewEncoder(f).Encode(token)
 }
 
-// NewService
+// NewService gathers the functions and the configs for making gmail API calls.
 func NewService() *gmail.Service {
 	b, err := ioutil.ReadFile("../../config/gmail/credentials.json")
 	if err != nil {

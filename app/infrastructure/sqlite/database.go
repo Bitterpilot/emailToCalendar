@@ -8,7 +8,7 @@ import (
 	"github.com/bitterpilot/emailToCalendar/models"
 )
 
-// SelectByMsgID
+// SelectByMsgID finds all messages in the database.
 func SelectByMsgID(msgID string, db *sql.DB) (string, error) {
 	tx, err := db.Begin()
 	if err != nil {
@@ -34,7 +34,7 @@ func SelectByMsgID(msgID string, db *sql.DB) (string, error) {
 	return msgList, nil
 }
 
-// Insert
+// Insert inserts an email into the database.
 func Insert(e models.Email, db *sql.DB) (int, error) {
 	tx, err := db.Begin()
 	if err != nil {

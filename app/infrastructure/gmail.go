@@ -6,27 +6,25 @@ import (
 	"google.golang.org/api/gmail/v1"
 )
 
-// Provider
+// Provider holds objects and functions for gmail API calls
 type Provider struct {
 	service *gmail.Service
-	// user    string
+	user    string
 }
 
-var user string
 
-// NewGmailProvider
+// NewGmailProvider creates a new Provider
 func NewGmailProvider(u string) *Provider {
 	s := gmailgetter.NewService()
-	user = u
 	return &Provider{
 		service: s,
-		// user:    u,
+		user:    u,
 	}
 }
 
-// List
+// List converts a gmail message type to a model.Email type
 func (p Provider) List(labelIDs, sender, subject string) []models.Email {
-	list := gmailgetter.ListMessages(user, labelIDs, sender, subject)
+	list := gmailgetter.ListMessages(p.user, labelIDs, sender, subject)
 	var ret []models.Email
 	for _, gmsg := range list {
 		msg := models.Email{
@@ -38,9 +36,9 @@ func (p Provider) List(labelIDs, sender, subject string) []models.Email {
 	return ret
 }
 
-// Get
+// Get a body and date from a gmail message type and converts to a model.Email type
 func (p Provider) Get(e models.Email) models.Email {
-	InternalDate, emailBody := gmailgetter.GetMessage(user, e.MsgID)
+	InternalDate, emailBody := gmailgetter.GetMessage(p.user, e.MsgID)
 	e.TimeReceived = InternalDate
 	e.Body = emailBody
 

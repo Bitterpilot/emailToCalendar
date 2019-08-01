@@ -40,18 +40,16 @@ func main() {
 	emailStore := infrastructure.NewDB(db)
 
 	// Email Provider
-	// This just takes a user becasue I needed to hand it though somewhere.
-	// It could return without anything being parsed into it to get an object with the methods that we need.
 	emailGetter := infrastructure.NewGmailProvider(user)
 
 	// Parse the objects into the main logic flow
 	reg := app.NewEmailRegistar(emailGetter, emailStore)
-	unproccesed, err := reg.Unprocessed(label, sender, subject)
+	unprocessed, err := reg.Unprocessed(label, sender, subject)
 	if err != nil {
 		log.Warnf("Unprocessed: %v", err)
 	}
 
-	for _, item := range unproccesed {
+	for _, item := range unprocessed {
 		fmt.Printf("%+v\n", item)
 	}
 }
