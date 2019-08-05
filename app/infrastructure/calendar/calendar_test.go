@@ -1,3 +1,5 @@
+// This code was designed to be ran in main
+
 package calendargetter_test
 
 /*
