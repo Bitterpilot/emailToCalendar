@@ -55,7 +55,7 @@ func (eR EmailRegistar) Unprocessed(labelIDs, sender, subject string) ([]models.
 			log.WithFields(log.Fields{"EmailID": email.MsgID}).Info("Get message and insert into db.")
 			// Get body and time received
 			email = eR.emailGetter.Get(email)
-			email.ID, err = eR.emailStore.InsertEmail(email)
+			email.DBID, err = eR.emailStore.InsertEmail(email)
 			if err != nil {
 				return nil, err
 			}
