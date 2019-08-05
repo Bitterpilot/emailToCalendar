@@ -12,8 +12,8 @@ type Store struct {
 	db *sql.DB
 }
 
-// NewDB creates a database.
-func NewDB(db *sql.DB) *Store {
+// NewSqliteDB creates a database.
+func NewSqliteDB(db *sql.DB) *Store {
 	return &Store{db: db}
 }
 
