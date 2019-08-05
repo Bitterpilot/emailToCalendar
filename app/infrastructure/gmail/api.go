@@ -4,47 +4,37 @@ import (
 	"encoding/base64"
 	"fmt"
 
-	log "github.com/sirupsen/logrus"
-
-	"google.golang.org/api/gmail/v1"
+	"github.com/bitterpilot/emailToCalendar/models"
 )
 
 // GetMessage returns the internal date and body from the Gmail API.
-func GetMessage(user, msgID string) (int64, []byte) {
-	msg, err := srv.Users.Messages.Get(user, msgID).Format("full").Do()
+func (p *EmailProvider) GetMessage(e models.Email) (models.Email, error) {
+	msg, err := p.Srv.Users.Messages.Get(p.User, e.MsgID).Format("full").Do()
 	if err != nil {
-		// FIXME: Make sure a fatal is appropriate
-		// 		  fatal will exit to OS
-		// guide https://stackoverflow.com/a/33890104
-		log.Fatalf("Error: gmail.go/GetMessage/msg returned %v", err)
+		return models.Email{}, err
 	}
 
 	// Check Mime types
 	// start by setting a high part number so if a part of the desired mime type is not found
 	// we can fail gracefully.
 	// parts is an array so a 0 default part num would result in selecting the first element in the array
-	// a multi-part email is unlikely to have more than 9000 parts (a foolish assumption?)
-	var partNum = 9999
+	var partNum = -1
 	for i := 0; i < len(msg.Payload.Parts); i++ {
 		if msg.Payload.Parts[i].MimeType == "text/html" {
 			partNum = i
 		}
 	}
-	if partNum == 9999 {
-		// FIXME: Make sure a fatal is appropriate
-		// 		  fatal will exit to OS
-		// guide https://stackoverflow.com/a/33890104
-		log.Fatalf("Error: gmail.go/GetMessage text/html Mime Type not found in msgID: %s", msgID)
+	if partNum == -1 {
+		return models.Email{}, err
+		// log.Fatalf("Error: gmail.go/GetMessage text/html Mime Type not found in msgID: %s", e.MsgID)
 	}
 	// Confirm Encoding type is base64 before proceding
 	partHeaders := msg.Payload.Parts[partNum].Headers
 	for key := range partHeaders {
 		if partHeaders[key].Name == "Content-Transfer-Encoding" {
 			if partHeaders[key].Value != "base64" {
-				// FIXME: Make sure a fatal is appropriate
-				// 		  fatal will exit to OS
-				// guide https://stackoverflow.com/a/33890104
-				log.Fatalf("Unexpected Content-Transfer-Encoding type: %v in in msgID: %s", partHeaders[key].Value, msgID)
+				return models.Email{}, err
+				// log.Fatalf("Unexpected Content-Transfer-Encoding type: %v in in msgID: %s", partHeaders[key].Value, e.MsgID)
 			}
 		}
 	}
@@ -53,23 +43,30 @@ func GetMessage(user, msgID string) (int64, []byte) {
 	data := msg.Payload.Parts[partNum].Body.Data
 	emailBody, err := base64.URLEncoding.DecodeString(data)
 	if err != nil {
-		// FIXME: Make sure a fatal is appropriate
-		// 		  fatal will exit to OS
-		// guide https://stackoverflow.com/a/33890104
-		log.Fatalf("Unable to decode email: %v", err)
+		return models.Email{}, err
+		// log.Fatalf("Unable to decode email: %v", err)
 	}
 
-	return msg.InternalDate, emailBody
+	e.Body = emailBody
+	return e, nil
 }
 
 // ListMessages returns a list of messages with basic info from the Gmail API.
 // It only returns the messages with a declared label, sender and subject.
-// 
+//
 // Returned values are Gmail Message ID and Thread ID.
-func ListMessages(user, labelIDs, sender, subject string) []*gmail.Message {
-	msgList, err := srv.Users.Messages.List(user).LabelIds(labelIDs).Q(fmt.Sprintf("from:%s subject:%s", sender, subject)).Do()
+func (p *EmailProvider) ListMessages(labelIDs, sender, subject string) ([]models.Email, error) {
+	msgList, err := p.Srv.Users.Messages.List(p.User).LabelIds(labelIDs).Q(fmt.Sprintf("from:%s subject:%s", sender, subject)).Do()
 	if err != nil {
-		fmt.Println(err)
+		return nil, err
 	}
-	return msgList.Messages
+
+	ret := make([]models.Email, 0, len(msgList.Messages))
+	for _, msg := range msgList.Messages {
+		ret = append(ret, models.Email{
+			MsgID: msg.Id,
+			ThdID: msg.ThreadId,
+		})
+	}
+	return ret, nil
 }

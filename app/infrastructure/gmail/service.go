@@ -15,9 +15,6 @@ import (
 	"google.golang.org/api/gmail/v1"
 )
 
-var user = "me"
-var srv = NewService()
-
 // Retrieve a token, saves the token, then returns the generated client.
 func getClient(config *oauth2.Config) *http.Client {
 	// The file token.json stores the user's access and refresh tokens, and is
@@ -83,7 +80,7 @@ func saveToken(path string, token *oauth2.Token) {
 }
 
 // NewService gathers the functions and the configs for making gmail API calls.
-func NewService() *gmail.Service {
+func newService() *gmail.Service {
 	b, err := ioutil.ReadFile("../../config/gmail/credentials.json")
 	if err != nil {
 		// FIXME: Make sure a fatal is appropriate
