@@ -1,16 +1,14 @@
 package sqlite
 
 import (
-	"database/sql"
-
 	log "github.com/sirupsen/logrus"
 
 	"github.com/bitterpilot/emailToCalendar/models"
 )
 
-// SelectByMsgID finds all messages in the database.
-func SelectByMsgID(msgID string, db *sql.DB) (string, error) {
-	tx, err := db.Begin()
+// FindByMsgID searches for records by Message ID.
+func (s EmailStore) FindByMsgID(msgID string) (string, error) {
+	tx, err := s.db.Begin()
 	if err != nil {
 		return "", err
 	}
@@ -34,9 +32,9 @@ func SelectByMsgID(msgID string, db *sql.DB) (string, error) {
 	return msgList, nil
 }
 
-// Insert inserts an email into the database.
-func Insert(e models.Email, db *sql.DB) (int, error) {
-	tx, err := db.Begin()
+// InsertEmail into database and returns it's row ID.
+func (s EmailStore) InsertEmail(e models.Email) (int, error) {
+	tx, err := s.db.Begin()
 	if err != nil {
 		return -1, err
 	}
