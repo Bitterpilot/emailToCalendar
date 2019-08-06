@@ -49,7 +49,7 @@ func processTable(t *html.Tokenizer) []models.RowContent {
 // processRows takes a slice of strings and applies them to the models.RowContent struct
 func processRows(content []string) []models.RowContent {
 	nContent := []models.RowContent{}
-	// check where the slice needs to be devided
+	// check where the slice needs to be divided
 	var positions []int
 	for key, val := range content {
 		switch {
