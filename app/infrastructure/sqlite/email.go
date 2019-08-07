@@ -16,7 +16,7 @@ func (s EmailStore) FindByMsgID(msgID string) (string, error) {
 	}
 	defer tx.Commit()
 
-	var msgList string
+	var msg string
 
 	stmt, err := tx.Query("SELECT msgID FROM emails WHERE msgID = ?", msgID)
 	if err != nil {
@@ -26,31 +26,32 @@ func (s EmailStore) FindByMsgID(msgID string) (string, error) {
 
 	for stmt.Next() {
 		// for each row, scan the result into our composite object
-		err = stmt.Scan(&msgList)
+		err = stmt.Scan(&msg)
 		if err != nil {
 			return "", err
 		}
 	}
-	return msgList, nil
+	return msg, nil
+}
+
 // CheckUnProcessed
-func (s EmailStore) CheckUnProcessed(e models.Email) (string, error) {
+func (s EmailStore) CheckUnProcessed(e models.Email) (models.Email, error) {
 	tx, err := s.db.Begin()
 	if err != nil {
-		return "", err
+		return models.Email{}, err
 	}
 	defer tx.Commit()
 
-	row := tx.QueryRow("SELECT msgID FROM emails WHERE proccessed=0 AND msgID=?", e.MsgID)
+	row := tx.QueryRow("SELECT id, proccessed FROM emails WHERE msgID=?", e.MsgID)
 
-	var id string
-	switch err := row.Scan(&id); err {
+	switch err := row.Scan(&e.ID, &e.Processed); err {
 	case sql.ErrNoRows:
 		// fmt.Println("No rows were returned!")
-		return "", err
+		return e, nil
 	case nil:
-		return id, nil
+		return e, nil
 	default:
-		return "", err
+		return models.Email{}, err
 	}
 }
 

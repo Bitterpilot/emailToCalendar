@@ -17,7 +17,7 @@ type EmailGetter interface {
 // EmailStore are functions a database package will implement.
 type EmailStore interface {
 	FindByMsgID(string) (string, error)
-	CheckUnProcessed(e models.Email) (string, error)
+	CheckUnProcessed(e models.Email) (models.Email, error)
 	InsertEmail(models.Email) (int, error)
 }
 
@@ -49,29 +49,30 @@ func (eR EmailRegistar) Unprocessed(labelIDs, sender, subject string) ([]models.
 	var unprocessed []models.Email
 	// compare emails to db records
 	for _, email := range list {
+		// Set sensible default for dbid
+		email.ID = -1
 		// Look for email in DB.
-		dbRecord, err := eR.emailStore.FindByMsgID(email.MsgID)
+		email, err := eR.emailStore.CheckUnProcessed(email)
 		if err != nil {
 			return nil, err
 		}
-		// If not in db then get time received and body, insert to db,
-		if email.MsgID != dbRecord {
-			log.WithFields(log.Fields{"EmailID": email.MsgID}).Info("Got message and insert into db.")
+		// If not in db then get time received and body
+		if !email.Processed {
+			log.WithFields(log.Fields{"EmailID": email.MsgID, "DatabaseID": email.ID}).Info("Got message.")
 			// Get body and time received
 			email, err = eR.emailGetter.GetMessage(email)
 			if err != nil {
 				return nil, err
 			}
-			email.ID, err = eR.emailStore.InsertEmail(email)
-			if err != nil {
-				return nil, err
+			// If not in db insert to db
+			if email.ID == -1 {
+				email.ID, err = eR.emailStore.InsertEmail(email)
+				if err != nil {
+					return nil, err
+				}
 			}
-
 			unprocessed = append(unprocessed, email)
 		}
 	}
 	return unprocessed, nil
 }
-
-// body
-// table

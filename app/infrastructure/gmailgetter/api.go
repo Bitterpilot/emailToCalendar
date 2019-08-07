@@ -5,6 +5,7 @@ import (
 	"fmt"
 
 	"github.com/bitterpilot/emailToCalendar/models"
+	"google.golang.org/api/gmail/v1"
 )
 
 // GetMessage returns the internal date and body from the Gmail API.
@@ -14,6 +15,16 @@ func (p *EmailProvider) GetMessage(e models.Email) (models.Email, error) {
 		return models.Email{}, err
 	}
 
+	e.TimeReceived = msg.InternalDate
+	e.Body, err = getBody(msg)
+	if err != nil {
+		return models.Email{}, err
+	}
+	return e, nil
+}
+
+// getBody from gmail Message
+func getBody(msg *gmail.Message) ([]byte, error) {
 	// Check Mime types
 	// start by setting a high part number so if a part of the desired mime type is not found
 	// we can fail gracefully.
@@ -25,31 +36,21 @@ func (p *EmailProvider) GetMessage(e models.Email) (models.Email, error) {
 		}
 	}
 	if partNum == -1 {
-		return models.Email{}, err
-		// log.Fatalf("Error: gmail.go/GetMessage text/html Mime Type not found in msgID: %s", e.MsgID)
+		return nil, fmt.Errorf("text/html Mime Type not found in msgID: %s", msg.Id)
 	}
 	// Confirm Encoding type is base64 before proceding
 	partHeaders := msg.Payload.Parts[partNum].Headers
 	for key := range partHeaders {
 		if partHeaders[key].Name == "Content-Transfer-Encoding" {
 			if partHeaders[key].Value != "base64" {
-				return models.Email{}, err
-				// log.Fatalf("Unexpected Content-Transfer-Encoding type: %v in in msgID: %s", partHeaders[key].Value, e.MsgID)
+				return nil, fmt.Errorf("unexpected Content-Transfer-Encoding type: %v in in msgID: %s", partHeaders[key].Value, msg.Id)
 			}
 		}
 	}
 
 	// Decode and print
 	data := msg.Payload.Parts[partNum].Body.Data
-	emailBody, err := base64.URLEncoding.DecodeString(data)
-	if err != nil {
-		return models.Email{}, err
-		// log.Fatalf("Unable to decode email: %v", err)
-	}
-
-	e.TimeReceived = msg.InternalDate
-	e.Body = emailBody
-	return e, nil
+	return base64.URLEncoding.DecodeString(data)
 }
 
 // ListMessages returns a list of messages with basic info from the Gmail API.
