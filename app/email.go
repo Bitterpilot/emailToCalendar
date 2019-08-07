@@ -10,13 +10,14 @@ import (
 
 // EmailGetter are functions a email provider( Gmail, Outlook ) package will implement.
 type EmailGetter interface {
-	List(labelIDs, sender, subject string) []models.Email
-	Get(models.Email) models.Email
+	ListMessages(labelIDs, sender, subject string) ([]models.Email, error)
+	GetMessage(models.Email) (models.Email, error)
 }
 
 // EmailStore are functions a database package will implement.
 type EmailStore interface {
-	FindByMsgID(msgID string) (string, error)
+	FindByMsgID(string) (string, error)
+	CheckUnProcessed(e models.Email) (string, error)
 	InsertEmail(models.Email) (int, error)
 }
 
@@ -41,7 +42,10 @@ func NewEmailRegistar(e EmailGetter, db EmailStore) *EmailRegistar {
 // It returns a models.Email with all fields.
 func (eR EmailRegistar) Unprocessed(labelIDs, sender, subject string) ([]models.Email, error) {
 	// List all emails
-	list := eR.emailGetter.List(labelIDs, sender, subject)
+	list, err := eR.emailGetter.ListMessages(labelIDs, sender, subject)
+	if err != nil {
+		return nil, err
+	}
 	var unprocessed []models.Email
 	// compare emails to db records
 	for _, email := range list {
@@ -52,10 +56,13 @@ func (eR EmailRegistar) Unprocessed(labelIDs, sender, subject string) ([]models.
 		}
 		// If not in db then get time received and body, insert to db,
 		if email.MsgID != dbRecord {
-			log.WithFields(log.Fields{"EmailID": email.MsgID}).Info("Get message and insert into db.")
+			log.WithFields(log.Fields{"EmailID": email.MsgID}).Info("Got message and insert into db.")
 			// Get body and time received
-			email = eR.emailGetter.Get(email)
-			email.DBID, err = eR.emailStore.InsertEmail(email)
+			email, err = eR.emailGetter.GetMessage(email)
+			if err != nil {
+				return nil, err
+			}
+			email.ID, err = eR.emailStore.InsertEmail(email)
 			if err != nil {
 				return nil, err
 			}

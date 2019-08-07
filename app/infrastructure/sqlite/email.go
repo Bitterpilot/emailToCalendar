@@ -1,6 +1,8 @@
 package sqlite
 
 import (
+	"database/sql"
+
 	log "github.com/sirupsen/logrus"
 
 	"github.com/bitterpilot/emailToCalendar/models"
@@ -30,6 +32,26 @@ func (s EmailStore) FindByMsgID(msgID string) (string, error) {
 		}
 	}
 	return msgList, nil
+// CheckUnProcessed
+func (s EmailStore) CheckUnProcessed(e models.Email) (string, error) {
+	tx, err := s.db.Begin()
+	if err != nil {
+		return "", err
+	}
+	defer tx.Commit()
+
+	row := tx.QueryRow("SELECT msgID FROM emails WHERE proccessed=0 AND msgID=?", e.MsgID)
+
+	var id string
+	switch err := row.Scan(&id); err {
+	case sql.ErrNoRows:
+		// fmt.Println("No rows were returned!")
+		return "", err
+	case nil:
+		return id, nil
+	default:
+		return "", err
+	}
 }
 
 // InsertEmail into database and returns it's row ID.
