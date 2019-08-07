@@ -1,5 +1,5 @@
 // This code was designed to be ran in main
-package gmail_test
+package gmailgetter_test
 
 /*
 

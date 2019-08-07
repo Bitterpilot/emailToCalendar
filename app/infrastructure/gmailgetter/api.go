@@ -47,6 +47,7 @@ func (p *EmailProvider) GetMessage(e models.Email) (models.Email, error) {
 		// log.Fatalf("Unable to decode email: %v", err)
 	}
 
+	e.TimeReceived = msg.InternalDate
 	e.Body = emailBody
 	return e, nil
 }
