@@ -8,4 +8,5 @@ type Email struct {
 	TimeReceived int64  // Unix epoch time.
 	Processed    bool
 	Body         []byte // Message Body.
+	List         []Event
 }

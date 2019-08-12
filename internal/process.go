@@ -6,12 +6,11 @@ import (
 	"strings"
 
 	"github.com/bitterpilot/emailToCalendar/models"
-	log "github.com/sirupsen/logrus"
 	"golang.org/x/net/html"
 )
 
-// readBody tokenizes the email's html and pulls out the year and the table
-func readBody(e models.Email) ([]string, []models.RowContent, error) {
+// ReadBody tokenizes the email's html and pulls out the year and the table
+func ReadBody(e models.Email) ([]string, []models.RowContent, error) {
 	tokenizer := html.NewTokenizer(bytes.NewReader(e.Body))
 	year, err := readYear(tokenizer)
 	if err != nil {
@@ -54,7 +53,6 @@ func processRows(content []string) []models.RowContent {
 	for key, val := range content {
 		switch {
 		case val == "Day", val == "Mon", val == "Tue", val == "Wed", val == "Thu", val == "Fri", val == "Sat", val == "Sun":
-			log.Infoln(val, key)
 			positions = append(positions, key)
 		}
 	}
@@ -96,7 +94,6 @@ func processRows(content []string) []models.RowContent {
 		nContent = append(nContent, rowStruct)
 	}
 
-	log.Infoln(nContent)
 	return nContent
 }
 

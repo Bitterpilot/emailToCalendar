@@ -7,7 +7,7 @@ import (
 	log "github.com/sirupsen/logrus"
 	"github.com/spf13/viper"
 
-	gmailgetter "github.com/bitterpilot/emailToCalendar/app/infrastructure/gmail"
+	gmailgetter "github.com/bitterpilot/emailToCalendar/pkg/infrastructure/gmail"
 
 	_ "github.com/mattn/go-sqlite3"
 )

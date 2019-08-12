@@ -1,6 +1,8 @@
 package calendargetter
 
 import (
+	"fmt"
+
 	"github.com/bitterpilot/emailToCalendar/models"
 	"google.golang.org/api/calendar/v3"
 )
@@ -9,11 +11,12 @@ import (
 func (p *CalendarProvider) Create(event models.Event) (models.Event, error) {
 	e := convertToCalendar(event)
 
-	id, err := p.service.Events.Insert(p.calID, e).Do()
+	rsp, err := p.service.Events.Insert(p.calID, e).Do()
 	if err != nil {
 		return models.Event{}, err
 	}
-	event.EventID = id.Id
+	event.EventID = rsp.Id
+	event.Link = rsp.HtmlLink
 	return event, nil
 }
 
@@ -64,6 +67,27 @@ func (p *CalendarProvider) Update(new models.Event) (models.Event, error) {
 // Delete
 func (p *CalendarProvider) Delete(e models.Event) error {
 	return p.service.Events.Delete(p.calID, e.EventID).Do()
+}
+
+// Validate ensures that all requirements for google calendar are satisfied
+func (p *CalendarProvider) Validate(event models.Event) error {
+	str := "Failed Validation: event %s was empty"
+	switch {
+	case event.Summary == "":
+		return fmt.Errorf(str, "Summary")
+	case event.Location == "":
+		return fmt.Errorf(str, "Location")
+	case event.Description == "":
+		return fmt.Errorf(str, "Description")
+	case event.Start == "":
+		return fmt.Errorf(str, "Start")
+	case event.End == "":
+		return fmt.Errorf(str, "End")
+	case event.Timezone == "":
+		return fmt.Errorf(str, "Timezone")
+	default:
+		return nil
+	}
 }
 
 func convertToCalendar(new models.Event) *calendar.Event {

@@ -1,6 +1,6 @@
 package models
 
-// Event is a basic type of an event
+// Event is a basic type of an calendar event
 type Event struct {
 	EventID     string
 	Summary     string
@@ -11,7 +11,8 @@ type Event struct {
 	Description string
 	MsgID       string
 	Link        string
-	Processed   bool // true/false/nil
+	Processed   bool
+	ProcessedTime int64
 }
 
 // RowContent is what is expected from a riteq schedule email

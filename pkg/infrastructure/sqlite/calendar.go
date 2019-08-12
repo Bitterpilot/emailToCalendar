@@ -7,7 +7,7 @@ import (
 )
 
 // InsertShift
-func (s CalendarStore) InsertShift(e *models.Event) error {
+func (s CalendarStore) InsertShift(e models.Event) error {
 	tx, err := s.db.Begin()
 	if err != nil {
 		return err
@@ -15,7 +15,7 @@ func (s CalendarStore) InsertShift(e *models.Event) error {
 	defer tx.Commit()
 
 	stmt, err := tx.Prepare(`
-		INSERT INTO "shifts" ("Summery", "description", "TimeZone", "EventDateStart", "EventDateEnd", "Processed", "processTime","eventID", "msgID")
+		INSERT INTO "shifts" ("Summery", "description", "TimeZone", "EventDateStart", "EventDateEnd", "Processed", "proccessTime","eventID", "msgID")
     	VALUES ( ?, ?, ?, ?, ?, ?, ?,?,?);
 		`)
 	if err != nil {
@@ -23,14 +23,12 @@ func (s CalendarStore) InsertShift(e *models.Event) error {
 	}
 	defer stmt.Close()
 
-	e.Processed = true
-	processTime := time.Now().Unix()
-	res, err := stmt.Exec(e.Summary, e.Description, e.Timezone, e.Start, e.End, e.Processed, processTime, e.EventID, e.MsgID)
+	res, err := stmt.Exec(e.Summary, e.Description, e.Timezone, e.Start, e.End, e.Processed, e.ProcessedTime, e.EventID, e.MsgID)
 	if err != nil {
 		return err
 	}
 	res.LastInsertId()
-	
+
 	return nil
 }
 

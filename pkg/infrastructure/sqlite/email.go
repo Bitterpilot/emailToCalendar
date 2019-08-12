@@ -81,3 +81,24 @@ func (s EmailStore) InsertEmail(e models.Email) (int, error) {
 	log.WithFields(log.Fields{"Database ID": id}).Info("Inserted to DB.")
 	return int(id), nil
 }
+
+// UpdateStatus
+func (s EmailStore) UpdateProcessStatus(e models.Email) error {
+	tx, err := s.db.Begin()
+	if err != nil {
+		return err
+	}
+	defer tx.Commit()
+
+	stmt, err := tx.Prepare("UPDATE emails SET proccessed=? WHERE ID=? ")
+	if err != nil {
+		return err
+	}
+
+	_, err = stmt.Exec(e.Processed, e.ID)
+	if err != nil {
+		return err
+	}
+
+	return nil
+}

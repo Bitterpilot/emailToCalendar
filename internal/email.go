@@ -19,6 +19,7 @@ type EmailStore interface {
 	FindByMsgID(string) (string, error)
 	CheckUnProcessed(e models.Email) (models.Email, error)
 	InsertEmail(models.Email) (int, error)
+	UpdateProcessStatus(models.Email) error
 }
 
 // EmailRegistar contains dependencies for this package. Such as an email provider, database and logger.
@@ -75,4 +76,9 @@ func (eR EmailRegistar) Unprocessed(labelIDs, sender, subject string) ([]models.
 		}
 	}
 	return unprocessed, nil
+}
+
+// MarkedAsProcessed
+func (eR EmailRegistar) MarkedAsProcessed(e models.Email) error {
+	return eR.emailStore.UpdateProcessStatus(e)
 }

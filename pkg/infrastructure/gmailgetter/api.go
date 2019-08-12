@@ -23,7 +23,7 @@ func (p *EmailProvider) GetMessage(e models.Email) (models.Email, error) {
 	return e, nil
 }
 
-// getBody from gmail Message
+// getBody from gmail message and sends them to specific decoders based on the MIME type. 
 func getBody(msg *gmail.Message) ([]byte, error) {
 	// Check Mime types
 	// start by setting a high part number so if a part of the desired mime type is not found

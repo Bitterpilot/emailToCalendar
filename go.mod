@@ -3,6 +3,7 @@ module github.com/bitterpilot/emailToCalendar
 go 1.12
 
 require (
+	github.com/kr/pretty v0.1.0
 	github.com/mattn/go-sqlite3 v1.11.0
 	github.com/sirupsen/logrus v1.2.0
 	github.com/spf13/viper v1.4.0
