@@ -3,12 +3,12 @@ package main
 import (
 	"database/sql"
 
-	"github.com/kr/pretty"
 	_ "github.com/mattn/go-sqlite3"
 	log "github.com/sirupsen/logrus"
 	"github.com/spf13/viper"
 
 	app "github.com/bitterpilot/emailToCalendar/internal"
+	"github.com/bitterpilot/emailToCalendar/internal/cmd"
 	"github.com/bitterpilot/emailToCalendar/models"
 	"github.com/bitterpilot/emailToCalendar/pkg/infrastructure/calendargetter"
 	"github.com/bitterpilot/emailToCalendar/pkg/infrastructure/gmailgetter"
@@ -47,58 +47,6 @@ func main() {
 	emlreg := app.NewEmailRegistar(e, ed)
 	calreg := app.NewCalendarRegistar(cal, cald, c)
 
-	// Logic
-	list, err := emlreg.Unprocessed(c.Label, c.Sender, c.Subject)
-	if err != nil {
-		log.Fatalln(err)
-	}
-	if list == nil {
-		log.Info("no new emails")
-	}
-
-	for i, e := range list {
-		years, rows, err := app.ReadBody(e)
-		if err != nil {
-			log.Fatalln(err)
-		}
-		for _, row := range rows[1:] {
-			event, err := calreg.BuildEvent(years, row, e.MsgID)
-			if err != nil {
-				log.Errorln(err)
-			}
-			list[i].List = append(list[i].List, event)
-		}
-	}
-
-	for i, ev := range list {
-		for j, evnt := range ev.List {
-			list[i].List[j], err = calreg.Publish(evnt)
-			if err != nil {
-				log.Fatalln(err)
-			}
-		}
-	}
-
-	for _, e := range list {
-		var count int
-		for _, evnt := range e.List {
-			if evnt.Processed {
-				count++
-			}
-		}
-		if count == len(e.List) {
-			e.Processed = true
-			err := emlreg.MarkedAsProcessed(e)
-			if err != nil {
-				log.Fatalln(err)
-			}
-			log.Infof("\n*******************\nMSG: %s\nAll Processed!\n*******************\n", e.MsgID)
-		} else {
-			for _, ev := range e.List {
-				if !ev.Processed {
-					log.Infof("%+v\n", pretty.Formatter(ev))
-				}
-			}
-		}
-	}
+	// Run App
+	cmd.Run(c, emlreg, calreg)
 }
