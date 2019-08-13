@@ -10,7 +10,6 @@ import (
 )
 
 func main() {
-	log.SetReportCaller(true)
 	log.SetLevel(log.DebugLevel)
 	// load user info
 	viper.SetConfigName("config")
@@ -47,5 +46,4 @@ func main() {
 		}
 	}
 	log.Infof("Deleted %d of %d\n", count, total)
-
 }
