@@ -2,6 +2,7 @@ package main
 
 import (
 	"database/sql"
+	"flag"
 
 	_ "github.com/mattn/go-sqlite3"
 	log "github.com/sirupsen/logrus"
@@ -16,8 +17,14 @@ import (
 )
 
 func main() {
-	log.SetReportCaller(true)
-	log.SetLevel(log.DebugLevel)
+	// Set up log level
+	var debug bool
+	flag.BoolVar(&debug, "debug", false, "Sets the logger to debug level. Defaults to false")
+	flag.Parse()
+	if debug {
+		log.SetReportCaller(true)
+		log.SetLevel(log.DebugLevel)
+	}
 	// load user info
 	viper.SetConfigName("config")
 	viper.AddConfigPath("../../config")
