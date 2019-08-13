@@ -37,17 +37,11 @@ func getTokenFromWeb(config *oauth2.Config) *oauth2.Token {
 
 	var authCode string
 	if _, err := fmt.Scan(&authCode); err != nil {
-		// FIXME: Make sure a fatal is appropriate
-		// 		  fatal will exit to OS
-		// guide https://stackoverflow.com/a/33890104
 		log.Fatalf("Unable to read authorization code: %v", err)
 	}
 
 	tok, err := config.Exchange(context.TODO(), authCode)
 	if err != nil {
-		// FIXME: Make sure a fatal is appropriate
-		// 		  fatal will exit to OS
-		// guide https://stackoverflow.com/a/33890104
 		log.Fatalf("Unable to retrieve token from web: %v", err)
 	}
 	return tok
@@ -70,9 +64,6 @@ func saveToken(path string, token *oauth2.Token) {
 	fmt.Printf("Saving credential file to: %s\n", path)
 	f, err := os.OpenFile(path, os.O_RDWR|os.O_CREATE|os.O_TRUNC, 0600)
 	if err != nil {
-		// FIXME: Make sure a fatal is appropriate
-		// 		  fatal will exit to OS
-		// guide https://stackoverflow.com/a/33890104
 		log.Fatalf("Unable to cache oauth token: %v", err)
 	}
 	defer f.Close()
@@ -83,27 +74,18 @@ func saveToken(path string, token *oauth2.Token) {
 func newService() *gmail.Service {
 	b, err := ioutil.ReadFile("../../config/gmail/credentials.json")
 	if err != nil {
-		// FIXME: Make sure a fatal is appropriate
-		// 		  fatal will exit to OS
-		// guide https://stackoverflow.com/a/33890104
 		log.Fatalf("Unable to read client secret file: %v", err)
 	}
 
 	// If modifying these scopes, delete your previously saved token.json.
 	config, err := google.ConfigFromJSON(b, gmail.GmailReadonlyScope)
 	if err != nil {
-		// FIXME: Make sure a fatal is appropriate
-		// 		  fatal will exit to OS
-		// guide https://stackoverflow.com/a/33890104
 		log.Fatalf("Unable to parse client secret file to config: %v", err)
 	}
 	client := getClient(config)
 
 	srv, err := gmail.New(client)
 	if err != nil {
-		// FIXME: Make sure a fatal is appropriate
-		// 		  fatal will exit to OS
-		// guide https://stackoverflow.com/a/33890104
 		log.Fatalf("Unable to retrieve Gmail client: %v", err)
 	}
 	return srv

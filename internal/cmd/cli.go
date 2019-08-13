@@ -1,58 +1,66 @@
 package cmd
 
 import (
+	"os"
+
 	"github.com/kr/pretty"
-	_ "github.com/mattn/go-sqlite3"
 	log "github.com/sirupsen/logrus"
 
 	app "github.com/bitterpilot/emailToCalendar/internal"
 	"github.com/bitterpilot/emailToCalendar/models"
 )
 
-// Run
-func Run(c *models.Config, emlreg *app.EmailRegistar, calreg *app.CalendarRegistar) {
-	// Logic
-	list, err := emlreg.Unprocessed(c.Label, c.Sender, c.Subject)
+// Run connects all the components from getting an email to publishing events.
+func Run(c *models.Config, emailService *app.EmailRegistar, calendarService *app.CalendarRegistar) {
+	// Get list of unprocessed emails
+	emails, err := emailService.Unprocessed(c.Label, c.Sender, c.Subject)
 	if err != nil {
 		log.Fatalln(err)
 	}
-	if list == nil {
-		log.Info("no new emails")
+	if emails == nil {
+		log.Info("no unprocessed emails")
+		os.Exit(0)
 	}
 
-	for i, e := range list {
-		years, rows, err := app.ReadBody(e)
+	// Decode table into events
+	for i, email := range emails {
+		// Decode into individual rows
+		years, rows, err := app.ReadBody(email)
 		if err != nil {
 			log.Fatalln(err)
 		}
+
+		// Build events from rows. Skipping the header row.
 		for _, row := range rows[1:] {
-			event, err := calreg.BuildEvent(years, row, e.MsgID)
+			event, err := calendarService.BuildEvent(years, row, email.MsgID)
 			if err != nil {
 				log.Errorln(err)
 			}
-			list[i].List = append(list[i].List, event)
+			emails[i].List = append(emails[i].List, event)
 		}
 	}
 
-	for i, ev := range list {
-		for j, evnt := range ev.List {
-			list[i].List[j], err = calreg.Publish(evnt)
+	// Publish each event
+	for i, email := range emails {
+		for j, event := range email.List {
+			emails[i].List[j], err = calendarService.Publish(event)
 			if err != nil {
 				log.Fatalln(err)
 			}
 		}
 	}
 
-	for _, e := range list {
+	// Check that all events were published
+	for _, e := range emails {
 		var count int
-		for _, evnt := range e.List {
-			if evnt.Processed {
+		for _, event := range e.List {
+			if event.Processed {
 				count++
 			}
 		}
 		if count == len(e.List) {
 			e.Processed = true
-			err := emlreg.MarkedAsProcessed(e)
+			err := emailService.MarkedAsProcessed(e)
 			if err != nil {
 				log.Fatalln(err)
 			}
