@@ -6,7 +6,7 @@ import (
 	"github.com/bitterpilot/emailToCalendar/models"
 )
 
-// InsertShift
+// InsertShift into a sqlite database.
 func (s CalendarStore) InsertShift(e models.Event) error {
 	tx, err := s.db.Begin()
 	if err != nil {
@@ -32,7 +32,7 @@ func (s CalendarStore) InsertShift(e models.Event) error {
 	return nil
 }
 
-// ListEventIDByEmailID
+// ListEventIDByEmailID list events originating from an email.
 func (s CalendarStore) ListEventIDByEmailID(msgID string) ([]string, error) {
 	tx, err := s.db.Begin()
 	if err != nil {
@@ -57,7 +57,7 @@ func (s CalendarStore) ListEventIDByEmailID(msgID string) ([]string, error) {
 	return eventList, nil
 }
 
-// MarkShiftAsDeleted
+// MarkShiftAsDeleted marks an event as deleted from a service(ie; Google Calendar).
 func (s CalendarStore) MarkShiftAsDeleted(eventID string) error {
 	tx, err := s.db.Begin()
 	if err != nil {

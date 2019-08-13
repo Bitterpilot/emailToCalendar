@@ -7,7 +7,7 @@ import (
 	"google.golang.org/api/calendar/v3"
 )
 
-// Create
+// Create a event on google calendar.
 func (p *CalendarProvider) Create(event models.Event) (models.Event, error) {
 	e := convertToCalendar(event)
 
@@ -20,7 +20,7 @@ func (p *CalendarProvider) Create(event models.Event) (models.Event, error) {
 	return event, nil
 }
 
-// List
+// List events on google calendar.
 func (p *CalendarProvider) List() ([]models.Event, error) {
 	list, err := p.service.Events.List(p.calID).Do()
 	if err != nil {
@@ -34,7 +34,7 @@ func (p *CalendarProvider) List() ([]models.Event, error) {
 	return ret, nil
 }
 
-// Get
+// Get an event from google calendar.
 func (p *CalendarProvider) Get(e models.Event) (models.Event, error) {
 	rsp, err := p.service.Events.Get(p.calID, e.EventID).Do()
 	if err != nil {
@@ -43,7 +43,7 @@ func (p *CalendarProvider) Get(e models.Event) (models.Event, error) {
 	return convertToModel(rsp), nil
 }
 
-// Update
+// Update changes an event on google calendar.
 func (p *CalendarProvider) Update(new models.Event) (models.Event, error) {
 	current, err := p.service.Events.Get(p.calID, new.EventID).Do()
 	if err != nil {
@@ -64,7 +64,7 @@ func (p *CalendarProvider) Update(new models.Event) (models.Event, error) {
 	return e, nil
 }
 
-// Delete
+// Delete removes an event from google calendar.
 func (p *CalendarProvider) Delete(e models.Event) error {
 	return p.service.Events.Delete(p.calID, e.EventID).Do()
 }

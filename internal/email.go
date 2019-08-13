@@ -79,7 +79,7 @@ func (eR EmailRegistar) Unprocessed(labelIDs, sender, subject string) ([]models.
 	return unprocessed, nil
 }
 
-// MarkedAsProcessed
+// MarkedAsProcessed in the database.
 func (eR EmailRegistar) MarkedAsProcessed(e models.Email) error {
 	return eR.emailStore.MarkAsProcessed(e)
 }

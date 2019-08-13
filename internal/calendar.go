@@ -46,7 +46,7 @@ func NewCalendarRegistar(e CalendarGetter, db CalendarStore, c *models.Config) *
 	}
 }
 
-// Publish
+// Publish sets the description and location before pushing the event to the calendar service and the database.
 func (r *CalendarRegistar) Publish(event models.Event) (models.Event, error) {
 	processTime := time.Now()
 

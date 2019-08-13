@@ -35,7 +35,7 @@ func (s EmailStore) FindByMsgID(msgID string) (string, error) {
 	return msg, nil
 }
 
-// ListUnprocessed
+// ListUnprocessed from a sqlite database.
 func (s EmailStore) ListUnprocessed(e models.Email) (models.Email, error) {
 	tx, err := s.db.Begin()
 	if err != nil {
@@ -112,7 +112,8 @@ func (s EmailStore) MarkAsProcessed(e models.Email) error {
 	return nil
 }
 
-// ListByThdID
+// ListByThdID lists emails related a thread/conversation.
+// The process of matching email to a conversation is done by the origin service(ie; gmail, outlook).
 func (s EmailStore) ListByThdID(thdID string) ([]models.Email, error) {
 	tx, err := s.db.Begin()
 	if err != nil {
