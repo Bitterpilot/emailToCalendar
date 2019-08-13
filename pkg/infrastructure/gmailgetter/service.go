@@ -1,19 +1,18 @@
-package googlecal
+package gmailgetter
 
 import (
 	"encoding/json"
 	"fmt"
 	"io/ioutil"
-	"log"
 	"net/http"
 	"os"
 
-	"github.com/bitterpilot/emailToCalendar/db"
+	log "github.com/sirupsen/logrus"
 
 	"golang.org/x/net/context"
 	"golang.org/x/oauth2"
 	"golang.org/x/oauth2/google"
-	"google.golang.org/api/calendar/v3"
+	"google.golang.org/api/gmail/v1"
 )
 
 // Retrieve a token, saves the token, then returns the generated client.
@@ -21,7 +20,7 @@ func getClient(config *oauth2.Config) *http.Client {
 	// The file token.json stores the user's access and refresh tokens, and is
 	// created automatically when the authorization flow completes for the first
 	// time.
-	tokFile := "calendar/token.json"
+	tokFile := "../../config/gmail/token.json"
 	tok, err := tokenFromFile(tokFile)
 	if err != nil {
 		tok = getTokenFromWeb(config)
@@ -71,57 +70,23 @@ func saveToken(path string, token *oauth2.Token) {
 	json.NewEncoder(f).Encode(token)
 }
 
-func newService() *calendar.Service {
-	b, err := ioutil.ReadFile("calendar/credentials.json")
+// NewService gathers the functions and the configs for making gmail API calls.
+func newService() *gmail.Service {
+	b, err := ioutil.ReadFile("../../config/gmail/credentials.json")
 	if err != nil {
 		log.Fatalf("Unable to read client secret file: %v", err)
 	}
 
 	// If modifying these scopes, delete your previously saved token.json.
-	config, err := google.ConfigFromJSON(b, calendar.CalendarEventsScope)
+	config, err := google.ConfigFromJSON(b, gmail.GmailReadonlyScope)
 	if err != nil {
 		log.Fatalf("Unable to parse client secret file to config: %v", err)
 	}
 	client := getClient(config)
 
-	srv, err := calendar.New(client)
+	srv, err := gmail.New(client)
 	if err != nil {
-		log.Fatalf("Unable to retrieve Calendar client: %v", err)
+		log.Fatalf("Unable to retrieve Gmail client: %v", err)
 	}
 	return srv
-}
-
-// AddEvent creates an event on a google calandar
-func AddEvent(calendarID, summary, messageID, description, timezone, dateTimeStart, dateTimeEnd string) string {
-	srv := newService()
-
-	event := &calendar.Event{
-		Summary: summary,
-		// Location:    "800 Howard St., San Francisco, CA 94103",
-		Description: description,
-		Start: &calendar.EventDateTime{
-			DateTime: dateTimeStart,
-			TimeZone: timezone,
-		},
-		End: &calendar.EventDateTime{
-			DateTime: dateTimeEnd,
-			TimeZone: timezone,
-		},
-	}
-
-	var err error
-	event, err = srv.Events.Insert(calendarID, event).Do()
-	if err != nil {
-		log.Fatalf("Unable to create event. %v\n", err)
-	}
-	return event.Id
-}
-
-func DeleteEvent(calendarID, eventID string) {
-	srv := newService()
-	err := srv.Events.Delete(calendarID, eventID).Do()
-	if err != nil {
-		log.Printf("Unable to delete event. %v\n", err)
-	}
-	db.MarkShiftAsDeleted(eventID)
 }

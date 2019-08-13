@@ -39,8 +39,10 @@
 
 # Project Specific
 casesTest/*
-*/credentials.json
-*/token.json
+credentials.json
+token.json
+config.json
 exampleFullOutput.json
 *.db
+*.sqlite
 config.yaml
