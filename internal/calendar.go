@@ -53,7 +53,7 @@ func (r *CalendarRegistar) Publish(event models.Event) (models.Event, error) {
 	// Description
 	// This uses the process time variable witch we want as close to uploading the event as possible
 	event.Description = fmt.Sprintf(`Automatically created by emailToCalendar at %s<br><a href="https://mail.google.com/mail/#inbox/%s">Source</a>`,
-	processTime.Format(time.RFC822), event.MsgID)
+		processTime.Format(time.RFC822), event.MsgID)
 
 	// location
 	for k, v := range r.Config.Locations {

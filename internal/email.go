@@ -17,9 +17,10 @@ type EmailGetter interface {
 // EmailStore are functions a database package will implement.
 type EmailStore interface {
 	FindByMsgID(string) (string, error)
-	CheckUnProcessed(e models.Email) (models.Email, error)
+	ListUnprocessed(e models.Email) (models.Email, error)
 	InsertEmail(models.Email) (int, error)
-	UpdateProcessStatus(models.Email) error
+	MarkAsProcessed(models.Email) error
+	ListByThdID(thdID string) ([]models.Email, error)
 }
 
 // EmailRegistar contains dependencies for this package. Such as an email provider, database and logger.
@@ -53,7 +54,7 @@ func (eR EmailRegistar) Unprocessed(labelIDs, sender, subject string) ([]models.
 		// Set sensible default for dbid
 		email.ID = -1
 		// Look for email in DB.
-		email, err := eR.emailStore.CheckUnProcessed(email)
+		email, err := eR.emailStore.ListUnprocessed(email)
 		if err != nil {
 			return nil, err
 		}
@@ -80,5 +81,5 @@ func (eR EmailRegistar) Unprocessed(labelIDs, sender, subject string) ([]models.
 
 // MarkedAsProcessed
 func (eR EmailRegistar) MarkedAsProcessed(e models.Email) error {
-	return eR.emailStore.UpdateProcessStatus(e)
+	return eR.emailStore.MarkAsProcessed(e)
 }

@@ -2,6 +2,7 @@ package sqlite
 
 import (
 	"database/sql"
+	"fmt"
 
 	log "github.com/sirupsen/logrus"
 
@@ -34,8 +35,8 @@ func (s EmailStore) FindByMsgID(msgID string) (string, error) {
 	return msg, nil
 }
 
-// CheckUnProcessed
-func (s EmailStore) CheckUnProcessed(e models.Email) (models.Email, error) {
+// ListUnprocessed
+func (s EmailStore) ListUnprocessed(e models.Email) (models.Email, error) {
 	tx, err := s.db.Begin()
 	if err != nil {
 		return models.Email{}, err
@@ -56,6 +57,7 @@ func (s EmailStore) CheckUnProcessed(e models.Email) (models.Email, error) {
 }
 
 // InsertEmail into database and returns it's row ID.
+// This doesn't check for duplicates
 func (s EmailStore) InsertEmail(e models.Email) (int, error) {
 	tx, err := s.db.Begin()
 	if err != nil {
@@ -82,23 +84,57 @@ func (s EmailStore) InsertEmail(e models.Email) (int, error) {
 	return int(id), nil
 }
 
-// UpdateStatus
-func (s EmailStore) UpdateProcessStatus(e models.Email) error {
+// MarkAsProcessed Marks an email as complete in the database.
+func (s EmailStore) MarkAsProcessed(e models.Email) error {
 	tx, err := s.db.Begin()
 	if err != nil {
 		return err
 	}
 	defer tx.Commit()
 
-	stmt, err := tx.Prepare("UPDATE emails SET proccessed=? WHERE ID=? ")
+	stmt, err := tx.Prepare("UPDATE emails SET proccessed=? WHERE id=? ")
 	if err != nil {
 		return err
 	}
 
-	_, err = stmt.Exec(e.Processed, e.ID)
+	res, err := stmt.Exec(e.Processed, e.ID)
 	if err != nil {
 		return err
 	}
 
+	rows, err := res.RowsAffected()
+	if err != nil {
+		return err
+	}
+	if rows != 1 {
+		return fmt.Errorf("%d Rows affected, expected 1", rows)
+	}
 	return nil
+}
+
+// ListByThdID
+func (s EmailStore) ListByThdID(thdID string) ([]models.Email, error) {
+	tx, err := s.db.Begin()
+	if err != nil {
+		return nil, err
+	}
+	defer tx.Commit()
+
+	var thdList []models.Email
+
+	stmt, err := tx.Query("SELECT ID, msgID, thdID FROM emails WHERE thdID = ?", thdID)
+	if err != nil {
+		return nil, err
+	}
+	defer stmt.Close()
+	for stmt.Next() {
+		var row models.Email
+		// for each row, scan the result into our composite object
+		err = stmt.Scan(&row.ID, &row.MsgID, &row.ThdID)
+		if err != nil {
+			return nil, err
+		}
+		thdList = append(thdList, row)
+	}
+	return thdList, nil
 }
