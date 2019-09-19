@@ -40,6 +40,11 @@ func Run(c *models.Config, emailService *app.EmailRegistar, calendarService *app
 		}
 	}
 
+	// check for 6 days working in a week(Mon - Sun)
+	for _, e := range emails {
+		app.Check6in7(calendarService, &e)
+	}
+
 	// Publish each event
 	for i, email := range emails {
 		for j, event := range email.List {

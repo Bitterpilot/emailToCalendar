@@ -57,6 +57,31 @@ func (s CalendarStore) ListEventIDByEmailID(msgID string) ([]string, error) {
 	return eventList, nil
 }
 
+// ListEventsByDateRange returns a slice of events
+func (s CalendarStore) ListEventsByDateRange(begin, end string) ([]models.Event, error) {
+	tx, err := s.db.Begin()
+	if err != nil {
+		return nil, err
+	}
+	defer tx.Commit()
+
+	stmt, err := tx.Query("SELECT eventID, EventDateStart FROM shifts WHERE EventDateStart BETWEEN ? AND ? AND deleted=0", begin, end)
+	if err != nil {
+		return nil, err
+	}
+
+	var ret []models.Event
+	for stmt.Next() {
+		var row models.Event
+		err = stmt.Scan(&row.EventID, &row.Start)
+		if err != nil {
+			return nil, err
+		}
+		ret = append(ret, row)
+	}
+	return ret, nil
+}
+
 // MarkShiftAsDeleted marks an event as deleted from a service(ie; Google Calendar).
 func (s CalendarStore) MarkShiftAsDeleted(eventID string) error {
 	tx, err := s.db.Begin()
