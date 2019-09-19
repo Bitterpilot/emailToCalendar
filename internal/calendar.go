@@ -26,6 +26,7 @@ type CalendarGetter interface {
 type CalendarStore interface {
 	InsertShift(e models.Event) error
 	ListEventIDByEmailID(msgID string) ([]string, error)
+	ListEventsByDateRange(begin, end string) ([]models.Event, error)
 	MarkShiftAsDeleted(eventID string) error
 }
 
