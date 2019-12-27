@@ -19,6 +19,9 @@ func findMonday(t time.Time) time.Time {
 // Check6in7 checks for 6 working days in the calendar week
 // and logs a warning.
 func Check6in7(cr *CalendarRegistar, m *models.Email) {
+	if len(m.List) == 0 {
+		return
+	}
 	// get first day of fornight
 	s, err := time.Parse(time.RFC3339, m.List[0].Start)
 	if err != nil {
