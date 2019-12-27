@@ -2,6 +2,7 @@ package cmd
 
 import (
 	"os"
+	"time"
 
 	"github.com/kr/pretty"
 	log "github.com/sirupsen/logrus"
@@ -49,6 +50,26 @@ func Run(c *models.Config, emailService *app.EmailRegistar, calendarService *app
 	for i, email := range emails {
 		for j, event := range email.List {
 			emails[i].List[j], err = calendarService.Publish(event)
+			if err != nil {
+				log.Fatalln(err)
+			}
+
+			dStart, err := time.Parse(time.RFC3339, event.Start)
+			if err != nil {
+				log.Fatalln(err)
+			}
+			driveStart := dStart.Add(time.Duration(-40) * time.Minute)
+			driveEnd := event.Start
+			drivetime := models.Event{
+				Summary:  "Drive",
+				Start:    driveStart.Format(time.RFC3339),
+				End:      driveEnd,
+				Timezone: event.Timezone,
+				Location: emails[i].List[j].Location,
+			}
+			log.Debugf("%+v", event)
+
+			_, err = calendarService.Publish(drivetime)
 			if err != nil {
 				log.Fatalln(err)
 			}
