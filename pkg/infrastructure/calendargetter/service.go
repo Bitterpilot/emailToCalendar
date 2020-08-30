@@ -21,6 +21,7 @@ func getClient(config *oauth2.Config) *http.Client {
 	// created automatically when the authorization flow completes for the first
 	// time.
 	tokFile := "../../config/calendar/token.json"
+	// tokFile := "/config/calendar/token.json"
 	tok, err := tokenFromFile(tokFile)
 	if err != nil {
 		tok = getTokenFromWeb(config)
@@ -72,6 +73,7 @@ func saveToken(path string, token *oauth2.Token) {
 
 func newService() *calendar.Service {
 	b, err := ioutil.ReadFile("../../config/calendar/credentials.json")
+	// b, err := ioutil.ReadFile("/config/calendar/credentials.json")
 	if err != nil {
 		log.Fatalf("Unable to read client secret file: %v", err)
 	}
