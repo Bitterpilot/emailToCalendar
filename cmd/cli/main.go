@@ -27,7 +27,7 @@ func main() {
 	}
 	// load user info
 	viper.SetConfigName("config")
-	viper.AddConfigPath("../../config")
+	viper.AddConfigPath("/config")
 	if err := viper.ReadInConfig(); err != nil {
 		if _, ok := err.(viper.ConfigFileNotFoundError); ok {
 			log.Fatalf("Config file not found: %v", err)
@@ -42,7 +42,7 @@ func main() {
 	}
 
 	// Setup database
-	db, err := sql.Open("sqlite3", "../../db/foo.db")
+	db, err := sql.Open("sqlite3", "/config/emailtocal.db")
 	if err != nil {
 		log.Fatalf("Failed to open db: %v\n", err)
 	}
