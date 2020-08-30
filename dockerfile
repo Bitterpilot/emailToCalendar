@@ -1,4 +1,7 @@
 # https://dev.to/ivan/go-build-a-minimal-docker-image-in-just-three-steps-514i
+#
+# docker build -t emailtocal:latest .
+# docker import emailtocal_latest.tar
 # docker run --volume /Users/nathan/Documents/emailToCalendar/docker_vol:/config -it emailtocal 
 FROM golang as builder
 
@@ -30,7 +33,7 @@ RUN mkdir -p lib64 && cp /lib64/ld-linux-x86-64.so.2 lib64/
 
 # Docker scratch x509 fix
 # https://gist.github.com/michaelboke/564bf96f7331f35f1716b59984befc50
-RUN apt update && apt upgrade && apt install ca-certificates
+RUN apt update && apt --assume-yes upgrade && apt install --assume-yes  ca-certificates
 RUN update-ca-certificates
 
 # ------------------------------------------------------------------------------
