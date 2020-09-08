@@ -7,7 +7,7 @@ on:
       # Push events on master branch
       - main
       # Push events to branches matching refs/heads/releases/*
-      - 'release/**'
+      - "release/**"
 
 jobs:
   build:
@@ -32,7 +32,8 @@ jobs:
           # Docker repository to tag the image with
           #              :owner  /  :repo_name   /  :image_name
           repository: bitterpilot/emailtocalendar/emailtocalendar
+          tag: latest
           # Automatically tags the built image with the git reference as per the readme
-          tag_with_ref: true # optional
+          # tag_with_ref: true
           # Automatically tags the built image with the git short SHA as per the readme
           tag_with_sha: true # optional
