@@ -4,10 +4,10 @@ name: Build and push docker image
 on:
   push:
     branches:
-      - master
-      - feature/GithubWorkflows
-    tags:
-      - "*"
+      # Push events on master branch
+      - main
+      # Push events to branches matching refs/heads/releases/*
+      # - 'releases/**'
 
 jobs:
   build:
