@@ -1,8 +1,4 @@
-# https://dev.to/ivan/go-build-a-minimal-docker-image-in-just-three-steps-514i
-#
-# docker build -t emailtocal:latest .
-# docker import emailtocal_latest.tar
-# docker run --volume /Users/nathan/Documents/emailToCalendar/docker_vol:/config -it emailtocal 
+# Inspration https://dev.to/ivan/go-build-a-minimal-docker-image-in-just-three-steps-514i
 FROM golang:1.15.1 as builder
 
 ENV CGO_ENABLED=1
