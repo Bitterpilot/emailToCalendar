@@ -3,7 +3,7 @@
 # docker build -t emailtocal:latest .
 # docker import emailtocal_latest.tar
 # docker run --volume /Users/nathan/Documents/emailToCalendar/docker_vol:/config -it emailtocal 
-FROM golang as builder
+FROM golang:1.15.1 as builder
 
 ENV CGO_ENABLED=1
 

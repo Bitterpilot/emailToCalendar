@@ -1,0 +1,38 @@
+name: Build and push docker image
+
+# Triggers
+on:
+  push:
+    branches:
+      # Push events on master branch
+      - main
+      # Push events to branches matching refs/heads/releases/*
+      # - 'releases/**'
+
+jobs:
+  build:
+    name: build
+    runs-on: ubuntu-18.04
+    timeout-minutes: 5
+    steps:
+      - name: Checkout code
+        # Docs https://github.com/actions/checkout/tree/v2.3.2
+        uses: actions/checkout@v2.3.2
+
+      - name: Build and push Docker images
+        # Docs https://github.com/docker/build-push-action/tree/v1.1.0
+        uses: docker/build-push-action@v1.1.0
+        with:
+          # Username used to log in to a Docker registry. If not set then no login will occur
+          username: ${{ secrets.REGISTRY_USERNAME }}
+          # Password or personal access token used to log in to a Docker registry. If not set then no login will occur
+          password: ${{ secrets.REGISTRY_PAT }}
+          # Server address of Docker registry. If not set then will default to Docker Hub
+          registry: docker.pkg.github.com
+          # Docker repository to tag the image with
+          #              :owner  /  :repo_name   /  :image_name
+          repository: bitterpilot/emailtocalendar/emailtocalendar
+          # Automatically tags the built image with the git reference as per the readme
+          tag_with_ref: true # optional
+          # Automatically tags the built image with the git short SHA as per the readme
+          tag_with_sha: true # optional
