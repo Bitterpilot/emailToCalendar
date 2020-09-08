@@ -1,9 +1,12 @@
 IMAGE_NAME = docker.pkg.github.com/bitterpilot/emailtocalendar/emailtocalendar
-DISK_VOLUME = '/Users/nathan/Documents/Server Side/emailToCalendar/docker_vol:/config'
+IMAGE_TAG = :test
+DISK_VOLUME = '/Users/nathan/Documents/Server Side/emailToCalendar/test_data:/config'
+DOCKERFILE = ./dockerfile
+
 
 no-cache:
-	docker build --no-cache -t ${IMAGE_NAME}:test .
+	docker build -f ${DOCKERFILE} --no-cache -t ${IMAGE_NAME}${IMAGE_TAG} .
 build:
-	docker build -t ${IMAGE_NAME}:test .
-run:
-	docker run --volume ${DISK_VOLUME} -it ${IMAGE_NAME}
+	docker build -f ${DOCKERFILE} -t ${IMAGE_NAME}${IMAGE_TAG} .
+run: build
+	docker run --volume ${DISK_VOLUME} -it ${IMAGE_NAME}${IMAGE_TAG}
