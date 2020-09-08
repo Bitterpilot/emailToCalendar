@@ -43,11 +43,5 @@ COPY --from=builder /etc/ssl/certs/ca-certificates.crt /etc/ssl/certs/
 # Copy dependancies into root
 COPY --chown=0:0 --from=builder /dependancies /
 
-# Set up the app to run as a non-root user inside the /data folder
-# User ID 65534 is usually user 'nobody'. 
-# The executor of this image should still specify a user during setup.
-COPY --chown=65534:0 --from=builder /build/config /config
-USER 65534
-
 ENTRYPOINT ["/emailtocal_cli"]
 VOLUME /config

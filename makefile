@@ -10,3 +10,5 @@ build:
 	docker build -f ${DOCKERFILE} -t ${IMAGE_NAME}${IMAGE_TAG} .
 run: build
 	docker run --volume ${DISK_VOLUME} -it ${IMAGE_NAME}${IMAGE_TAG}
+novol: build
+	docker run -it ${IMAGE_NAME}${IMAGE_TAG}
