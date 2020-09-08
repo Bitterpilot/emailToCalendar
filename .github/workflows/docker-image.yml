@@ -7,7 +7,7 @@ on:
       # Push events on master branch
       - main
       # Push events to branches matching refs/heads/releases/*
-      # - 'releases/**'
+      - 'release/**'
 
 jobs:
   build:
