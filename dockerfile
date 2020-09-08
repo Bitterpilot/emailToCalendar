@@ -27,7 +27,9 @@ RUN mkdir -p lib64 && cp /lib64/ld-linux-x86-64.so.2 lib64/
 
 # Docker scratch x509 fix
 # https://gist.github.com/michaelboke/564bf96f7331f35f1716b59984befc50
-RUN apt update && apt install --assume-yes ca-certificates && update-ca-certificates
+# RUN apt update \
+#  && apt install --assume-yes ca-certificates \
+#  && update-ca-certificates
 
 # ------------------------------------------------------------------------------
 # Create the minimal runtime image
