@@ -41,7 +41,7 @@ FROM scratch
 COPY --from=builder /etc/ssl/certs/ca-certificates.crt /etc/ssl/certs/
 
 # Copy dependancies into root
-COPY --chown=0:0 --from=builder /dependancies /
+COPY --from=builder /dependancies /
 
 ENTRYPOINT ["/emailtocal_cli"]
 VOLUME /config
