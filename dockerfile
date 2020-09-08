@@ -1,8 +1,6 @@
 # Inspration https://dev.to/ivan/go-build-a-minimal-docker-image-in-just-three-steps-514i
 FROM golang:1.15.1 as builder
 
-ENV CGO_ENABLED=1
-
 WORKDIR /build
 # Let's cache modules retrieval - those don't change so often
 COPY go.mod .
@@ -13,7 +11,7 @@ RUN go mod download
 COPY . .
 
 # Build the application
-RUN go build -o emailtocal_cli ./cmd/cli/main.go
+RUN CGO_ENABLED=1 GOOS=linux go build -o emailtocal_cli ./cmd/cli/main.go
 
 # Let's create a /dependancies folder containing just the files necessary for runtime.
 # Later, it will be copied as the / (root) of the output image.
