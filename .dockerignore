@@ -1,0 +1,9 @@
+.DS_Store/
+.git/
+.github/
+.vscode/
+test_data/
+.gitignore
+README.md
+dockerfile
+makefile
