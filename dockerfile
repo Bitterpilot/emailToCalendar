@@ -25,7 +25,8 @@ RUN ldd emailtocal_cli | tr -s '[:blank:]' '\n' | grep '^/' | \
     xargs -I % sh -c 'mkdir -p $(dirname ./%); cp % ./%;'
 RUN mkdir -p lib64 && cp /lib64/ld-linux-x86-64.so.2 lib64/
 
-# Docker scratch x509 fix
+# x509: certificate signed by unknown authority fix
+# The update part isn't required in the 1.15.1 image
 # https://gist.github.com/michaelboke/564bf96f7331f35f1716b59984befc50
 # RUN apt update \
 #  && apt install --assume-yes ca-certificates \
@@ -36,7 +37,7 @@ RUN mkdir -p lib64 && cp /lib64/ld-linux-x86-64.so.2 lib64/
 # ------------------------------------------------------------------------------
 FROM scratch
 
-# Docker scratch x509 fix
+# x509: certificate signed by unknown authority fix
 COPY --from=builder /etc/ssl/certs/ca-certificates.crt /etc/ssl/certs/
 
 # Copy dependancies into root
