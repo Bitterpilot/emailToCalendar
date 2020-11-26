@@ -1,0 +1,16 @@
+[Unit]
+After=docker.service
+Requires=docker.service
+Wants=emailtocalendar.timer
+
+[Service]
+Type=simple
+ExecStart= /usr/bin/docker run \
+            --user 1000 \
+            --volume /home/nathan/emailToCalendar:/config \
+            -i --rm  \
+            --name emailToCalendar \
+            docker.pkg.github.com/bitterpilot/emailtocalendar/emailtocalendar 
+
+[Install]
+WantedBy=multi-user.target

@@ -1,0 +1,11 @@
+[Unit]
+Description=Runs emailtocal.service every 15 minutes
+Requires=emailtocal.service
+
+[Timer]
+Unit=emailtocal.service
+# Every 15 minutes
+OnCalendar=*-*-* *:00/15:00
+
+[Install]
+WantedBy=timers.target
